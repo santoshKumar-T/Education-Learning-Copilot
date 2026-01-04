@@ -59,7 +59,7 @@ export const askQuestion = async (req, res) => {
     console.log(`   Question: "${question}"`);
 
     // Generate answer using RAG
-    const result = await answerQuestion(
+    const qaResult = await answerQuestion(
       question,
       documentId.toString(),
       document.originalName,
