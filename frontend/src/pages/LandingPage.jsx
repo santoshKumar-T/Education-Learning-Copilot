@@ -182,7 +182,11 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                 </button>
               )}
             </div>
-            <div className="agent-card hover-lift animate-fade-in-up animate-delay-200">
+            <div 
+              className="agent-card hover-lift animate-fade-in-up animate-delay-200"
+              onClick={() => user && onNavigate && onNavigate('lesson-plan')}
+              style={{ cursor: user ? 'pointer' : 'default' }}
+            >
               <div className="agent-icon animate-pulse animate-delay-300">📚</div>
               <h3 className="agent-title">Lesson Planner Agent</h3>
               <p className="agent-description">
@@ -195,6 +199,18 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                 <li>Learning objectives</li>
                 <li>Time estimation</li>
               </ul>
+              {user && (
+                <button 
+                  className="btn-primary btn-small" 
+                  style={{ marginTop: '1rem', width: '100%' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate && onNavigate('lesson-plan');
+                  }}
+                >
+                  Try Lesson Planner →
+                </button>
+              )}
             </div>
             <div className="agent-card hover-lift animate-fade-in-up animate-delay-400">
               <div className="agent-icon animate-pulse animate-delay-500">🗺️</div>

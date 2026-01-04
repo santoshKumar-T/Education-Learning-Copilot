@@ -3,6 +3,7 @@ import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
 import QuizGenerator from './pages/QuizGenerator'
+import LessonPlanner from './pages/LessonPlanner'
 import Chatbot from './components/common/Chatbot'
 import AuthModal from './components/auth/AuthModal'
 import { isAuthenticated, getStoredUser, logout } from './services/api/auth.api'
@@ -30,6 +31,8 @@ function App() {
       setCurrentPage('settings')
     } else if (path === '/quiz') {
       setCurrentPage('quiz')
+    } else if (path === '/lesson-plan') {
+      setCurrentPage('lesson-plan')
     } else {
       setCurrentPage('home')
     }
@@ -64,6 +67,8 @@ function App() {
         setCurrentPage('settings')
       } else if (path === '/quiz') {
         setCurrentPage('quiz')
+      } else if (path === '/lesson-plan') {
+        setCurrentPage('lesson-plan')
       } else {
         setCurrentPage('home')
       }
@@ -91,6 +96,9 @@ function App() {
       )}
       {currentPage === 'quiz' && (
         <QuizGenerator user={user} onNavigate={navigateTo} />
+      )}
+      {currentPage === 'lesson-plan' && (
+        <LessonPlanner user={user} onNavigate={navigateTo} />
       )}
       {currentPage === 'home' && <Chatbot user={user} />}
       {showAuth && !user && (
