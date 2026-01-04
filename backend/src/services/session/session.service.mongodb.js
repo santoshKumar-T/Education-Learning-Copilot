@@ -1,13 +1,10 @@
-import Session from '../../models/Session.js';
-import { v4 as uuidv4 } from 'uuid';
-import mongoose from 'mongoose';
-
 /**
- * Check if MongoDB is connected
+ * Session Service (MongoDB)
+ * Handles session management using MongoDB through database middleware
  */
-const isMongoConnected = () => {
-  return mongoose.connection.readyState === 1; // 1 = connected
-};
+
+import Session from '../../models/Session.js';
+import { dbQuery, dbWrite, safeDbOperation } from '../../middleware/database/index.js';
 
 /**
  * Create a new chat session
@@ -15,10 +12,7 @@ const isMongoConnected = () => {
  * @returns {Promise<string>} Session ID
  */
 export const createSession = async (userId = null) => {
-  try {
-    if (!isMongoConnected()) {
-      throw new Error('Database not connected. Please start MongoDB or configure MongoDB Atlas connection.');
-    }
+  return dbWrite(async () => {
     const session = new Session({
       userId: userId || null,
       messages: [],
@@ -34,10 +28,9 @@ export const createSession = async (userId = null) => {
     }
 
     return session._id.toString();
-  } catch (error) {
-    console.error('Error creating session:', error);
-    throw error;
-  }
+  }, {
+    operationName: 'Create Session',
+  }).then(result => result.data);
 };
 
 /**
@@ -46,16 +39,12 @@ export const createSession = async (userId = null) => {
  * @returns {Promise<Object>} Session object
  */
 export const getSession = async (sessionId) => {
-  try {
-    if (!isMongoConnected()) {
-      return null;
-    }
+  return safeDbOperation(async () => {
     const session = await Session.findById(sessionId);
     return session;
-  } catch (error) {
-    console.error('Error getting session:', error);
-    return null;
-  }
+  }, {
+    operationName: 'Get Session',
+  }).then(result => result?.data || null);
 };
 
 /**
@@ -66,10 +55,7 @@ export const getSession = async (sessionId) => {
  * @param {Object} metadata - Optional metadata (model, tokens, etc.)
  */
 export const saveMessage = async (sessionId, role, content, metadata = {}) => {
-  try {
-    if (!isMongoConnected()) {
-      throw new Error('Database not connected. Please start MongoDB or configure MongoDB Atlas connection.');
-    }
+  return dbWrite(async () => {
     const session = await Session.findById(sessionId);
     if (!session) {
       throw new Error('Session not found');
@@ -85,10 +71,9 @@ export const saveMessage = async (sessionId, role, content, metadata = {}) => {
     await session.save();
 
     console.log(`💾 Message saved to session: ${sessionId}`);
-  } catch (error) {
-    console.error('Error saving message:', error);
-    throw error;
-  }
+  }, {
+    operationName: 'Save Message',
+  });
 };
 
 /**
@@ -98,20 +83,16 @@ export const saveMessage = async (sessionId, role, content, metadata = {}) => {
  * @returns {Promise<Array>} Conversation history
  */
 export const getConversationHistory = async (sessionId, limit = null) => {
-  try {
-    if (!isMongoConnected()) {
-      return [];
-    }
+  return safeDbOperation(async () => {
     const session = await Session.findById(sessionId);
     if (!session) {
       return [];
     }
 
     return session.getConversationHistory(limit);
-  } catch (error) {
-    console.error('Error getting conversation history:', error);
-    return [];
-  }
+  }, {
+    operationName: 'Get Conversation History',
+  }).then(result => result?.data || []);
 };
 
 /**
@@ -120,10 +101,7 @@ export const getConversationHistory = async (sessionId, limit = null) => {
  * @returns {Promise<Array>} Array of sessions
  */
 export const getUserSessions = async (userId) => {
-  try {
-    if (!isMongoConnected()) {
-      return [];
-    }
+  return safeDbOperation(async () => {
     const sessions = await Session.find({ userId })
       .sort({ lastActivity: -1 })
       .select('_id userId createdAt lastActivity messageCount')
@@ -136,10 +114,9 @@ export const getUserSessions = async (userId) => {
       lastActivity: session.lastActivity,
       messageCount: session.messageCount
     }));
-  } catch (error) {
-    console.error('Error getting user sessions:', error);
-    return [];
-  }
+  }, {
+    operationName: 'Get User Sessions',
+  }).then(result => result?.data || []);
 };
 
 /**
@@ -147,16 +124,12 @@ export const getUserSessions = async (userId) => {
  * @param {string} sessionId - Session ID
  */
 export const deleteSession = async (sessionId) => {
-  try {
-    if (!isMongoConnected()) {
-      throw new Error('Database not connected. Please start MongoDB or configure MongoDB Atlas connection.');
-    }
+  return dbWrite(async () => {
     await Session.findByIdAndDelete(sessionId);
     console.log(`🗑️  Deleted session: ${sessionId}`);
-  } catch (error) {
-    console.error('Error deleting session:', error);
-    throw error;
-  }
+  }, {
+    operationName: 'Delete Session',
+  });
 };
 
 /**
@@ -164,16 +137,14 @@ export const deleteSession = async (sessionId) => {
  * @param {string} sessionId - Session ID
  */
 export const updateSessionActivity = async (sessionId) => {
-  try {
-    if (!isMongoConnected()) {
-      return; // Silently fail if DB not connected
-    }
+  return safeDbOperation(async () => {
     await Session.findByIdAndUpdate(sessionId, {
       lastActivity: new Date()
     });
-  } catch (error) {
-    console.error('Error updating session activity:', error);
-  }
+  }, {
+    operationName: 'Update Session Activity',
+    requireConnection: false, // Don't throw if DB not connected
+  });
 };
 
 /**
@@ -182,10 +153,7 @@ export const updateSessionActivity = async (sessionId) => {
  * @returns {Promise<Object>} Session statistics
  */
 export const getSessionStats = async (sessionId) => {
-  try {
-    if (!isMongoConnected()) {
-      return null;
-    }
+  return safeDbOperation(async () => {
     const session = await Session.findById(sessionId);
     if (!session) {
       return null;
@@ -200,10 +168,9 @@ export const getSessionStats = async (sessionId) => {
       userMessages: session.messages.filter(m => m.role === 'user').length,
       assistantMessages: session.messages.filter(m => m.role === 'assistant').length
     };
-  } catch (error) {
-    console.error('Error getting session stats:', error);
-    return null;
-  }
+  }, {
+    operationName: 'Get Session Stats',
+  }).then(result => result?.data || null);
 };
 
 /**
@@ -212,10 +179,7 @@ export const getSessionStats = async (sessionId) => {
  * @returns {Promise<Array>} Recent sessions
  */
 export const getRecentSessions = async (limit = 10) => {
-  try {
-    if (!isMongoConnected()) {
-      return [];
-    }
+  return safeDbOperation(async () => {
     const sessions = await Session.find()
       .sort({ lastActivity: -1 })
       .limit(limit)
@@ -232,9 +196,7 @@ export const getRecentSessions = async (limit = 10) => {
         ? session.messages[0].content.substring(0, 50) 
         : 'No messages'
     }));
-  } catch (error) {
-    console.error('Error getting recent sessions:', error);
-    return [];
-  }
+  }, {
+    operationName: 'Get Recent Sessions',
+  }).then(result => result?.data || []);
 };
-

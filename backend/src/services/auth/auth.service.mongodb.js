@@ -1,13 +1,11 @@
+/**
+ * Auth Service (MongoDB)
+ * Handles user authentication using MongoDB through database middleware
+ */
+
 import User from '../../models/User.js';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-
-/**
- * Check if MongoDB is connected
- */
-const isMongoConnected = () => {
-  return mongoose.connection.readyState === 1; // 1 = connected
-};
+import { dbQuery, dbWrite, safeDbOperation } from '../../middleware/database/index.js';
 
 /**
  * Generate JWT token
@@ -43,12 +41,7 @@ export const verifyToken = (token) => {
  * Register a new user
  */
 export const registerUser = async (email, password, name = '') => {
-  try {
-    // Check MongoDB connection
-    if (!isMongoConnected()) {
-      throw new Error('Database not connected. Please start MongoDB or configure MongoDB Atlas connection.');
-    }
-
+  return dbWrite(async () => {
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     
@@ -92,25 +85,16 @@ export const registerUser = async (email, password, name = '') => {
       user: userJSON,
       token
     };
-  } catch (error) {
-    if (error.code === 11000) {
-      // MongoDB duplicate key error
-      throw new Error('User with this email already exists');
-    }
-    throw error;
-  }
+  }, {
+    operationName: 'Register User',
+  }).then(result => result.data);
 };
 
 /**
  * Login user
  */
 export const loginUser = async (email, password) => {
-  try {
-    // Check MongoDB connection
-    if (!isMongoConnected()) {
-      throw new Error('Database not connected. Please start MongoDB or configure MongoDB Atlas connection.');
-    }
-
+  return dbWrite(async () => {
     // Find user by email (include password for comparison)
     const user = await User.findOne({ email: email.toLowerCase() })
       .select('+password'); // Include password field
@@ -147,49 +131,40 @@ export const loginUser = async (email, password) => {
       user: userJSON,
       token
     };
-  } catch (error) {
-    throw error;
-  }
+  }, {
+    operationName: 'Login User',
+  }).then(result => result.data);
 };
 
 /**
  * Get user by ID
  */
 export const getUserById = async (userId) => {
-  try {
-    if (!isMongoConnected()) {
-      return null;
-    }
+  return safeDbOperation(async () => {
     const user = await User.findById(userId);
     return user;
-  } catch (error) {
-    return null;
-  }
+  }, {
+    operationName: 'Get User By ID',
+  }).then(result => result?.data || null);
 };
 
 /**
  * Get user by email
  */
 export const getUserByEmail = async (email) => {
-  try {
-    if (!isMongoConnected()) {
-      return null;
-    }
+  return safeDbOperation(async () => {
     const user = await User.findOne({ email: email.toLowerCase() });
     return user;
-  } catch (error) {
-    return null;
-  }
+  }, {
+    operationName: 'Get User By Email',
+  }).then(result => result?.data || null);
 };
 
 /**
  * Add session to user
  */
 export const addSessionToUser = async (userId, sessionId) => {
-  try {
-    if (!isMongoConnected()) {
-      return false;
-    }
+  return safeDbOperation(async () => {
     const user = await User.findById(userId);
     if (!user) {
       return false;
@@ -198,28 +173,22 @@ export const addSessionToUser = async (userId, sessionId) => {
     user.addSession(sessionId);
     await user.save();
     return true;
-  } catch (error) {
-    console.error('Error adding session to user:', error);
-    return false;
-  }
+  }, {
+    operationName: 'Add Session To User',
+  }).then(result => result?.data || false);
 };
 
 /**
  * Get user sessions
  */
 export const getUserSessions = async (userId) => {
-  try {
-    if (!isMongoConnected()) {
-      return [];
-    }
+  return safeDbOperation(async () => {
     const user = await User.findById(userId).populate('sessions');
     if (!user) {
       return [];
     }
     return user.sessions || [];
-  } catch (error) {
-    console.error('Error getting user sessions:', error);
-    return [];
-  }
+  }, {
+    operationName: 'Get User Sessions',
+  }).then(result => result?.data || []);
 };
-
