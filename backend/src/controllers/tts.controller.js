@@ -66,9 +66,12 @@ export const generateDocumentSummaryAudio = async (req, res) => {
     }
 
     // Get document (through database middleware)
-    const document = await dbQuery(async () => {
+    const dbResult = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId });
     }, { operationName: 'Get Document for TTS' });
+
+    // Extract document from middleware result
+    const document = dbResult.data;
 
     if (!document) {
       return res.status(404).json({
@@ -87,10 +90,10 @@ export const generateDocumentSummaryAudio = async (req, res) => {
 
     // Get summary text based on level
     const summaryText = document.summary?.[summaryLevel];
-    if (!summaryText) {
+    if (!summaryText || summaryText.trim().length === 0) {
       return res.status(400).json({
         success: false,
-        error: `Summary level "${summaryLevel}" not available for this document`
+        error: `Summary level "${summaryLevel}" not available for this document. Available levels: ${Object.keys(document.summary || {}).join(', ') || 'none'}`
       });
     }
 
