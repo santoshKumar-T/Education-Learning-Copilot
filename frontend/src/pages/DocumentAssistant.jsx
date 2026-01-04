@@ -471,11 +471,17 @@ const DocumentAssistant = ({ user }) => {
                 <h2>{selectedDocument.filename}</h2>
                 <button className="btn-close" onClick={() => {
                   setSelectedDocument(null);
-                  // Clear Q&A state when closing document
+                  // Clear Q&A and flashcard state when closing document
                   setQuestion('');
                   setAnswer(null);
                   setSources([]);
                   setQaError(null);
+                  setFlashcards([]);
+                  setFlashcardError(null);
+                  setCurrentFlashcardIndex(0);
+                  setFlashcardFlipped(false);
+                  setFlashcardStats({ correct: 0, incorrect: 0 });
+                  setAnsweredCards(new Set());
                 }}>✕</button>
               </div>
 
