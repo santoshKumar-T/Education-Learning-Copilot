@@ -200,78 +200,43 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
             </p>
           </div>
           <div className="agents-grid">
-            <div 
-              className="agent-card hover-lift animate-fade-in-up"
-              onClick={() => user && onNavigate && onNavigate('quiz')}
-              style={{ cursor: user ? 'pointer' : 'default' }}
-            >
-              <div className="agent-icon animate-pulse">🎲</div>
-              <h3 className="agent-title">Quiz Generator Agent</h3>
+            <div className="agent-card hover-lift animate-fade-in-up">
+              <div className="agent-icon animate-pulse">📝</div>
+              <h3 className="agent-title">Study Notes Agent</h3>
               <p className="agent-description">
-                Automatically creates comprehensive quizzes from your course materials. 
-                Generates multiple question types including multiple choice, true/false, 
-                and short answer questions.
+                Automatically generates comprehensive study notes from your conversations and course materials. 
+                Creates structured summaries, key points, and flashcards for efficient revision.
               </p>
               <ul className="agent-features">
-                <li>Multiple question types</li>
-                <li>Difficulty adaptation</li>
-                <li>Instant feedback</li>
+                <li>Auto-summarization</li>
+                <li>Flashcard generation</li>
+                <li>Multiple formats</li>
               </ul>
-              {user && (
-                <button 
-                  className="btn-primary btn-small" 
-                  style={{ marginTop: '1rem', width: '100%' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate && onNavigate('quiz');
-                  }}
-                >
-                  Try Quiz Generator →
-                </button>
-              )}
             </div>
-            <div 
-              className="agent-card hover-lift animate-fade-in-up animate-delay-200"
-              onClick={() => user && onNavigate && onNavigate('lesson-plan')}
-              style={{ cursor: user ? 'pointer' : 'default' }}
-            >
-              <div className="agent-icon animate-pulse animate-delay-300">📚</div>
-              <h3 className="agent-title">Lesson Planner Agent</h3>
+            <div className="agent-card hover-lift animate-fade-in-up animate-delay-200">
+              <div className="agent-icon animate-pulse animate-delay-300">🔍</div>
+              <h3 className="agent-title">Content Analyzer Agent</h3>
               <p className="agent-description">
-                Designs structured lesson plans based on learning objectives. 
-                Creates sequential, logical learning experiences that build upon 
-                previous knowledge.
+                Analyzes your course materials, documents, and PDFs to extract key concepts, 
+                identify important topics, and create searchable knowledge bases.
               </p>
               <ul className="agent-features">
-                <li>Structured curriculum</li>
-                <li>Learning objectives</li>
-                <li>Time estimation</li>
+                <li>Document analysis</li>
+                <li>Concept extraction</li>
+                <li>Smart search</li>
               </ul>
-              {user && (
-                <button 
-                  className="btn-primary btn-small" 
-                  style={{ marginTop: '1rem', width: '100%' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNavigate && onNavigate('lesson-plan');
-                  }}
-                >
-                  Try Lesson Planner →
-                </button>
-              )}
             </div>
             <div className="agent-card hover-lift animate-fade-in-up animate-delay-400">
-              <div className="agent-icon animate-pulse animate-delay-500">🗺️</div>
-              <h3 className="agent-title">Learning Path Agent</h3>
+              <div className="agent-icon animate-pulse animate-delay-500">🎯</div>
+              <h3 className="agent-title">Weak Areas Detector</h3>
               <p className="agent-description">
-                Maps out personalized learning journeys. Analyzes your goals, 
-                current knowledge, and learning style to create the optimal path 
-                to mastery.
+                Identifies your learning gaps and weak areas through performance analysis. 
+                Provides targeted recommendations and practice materials to improve.
               </p>
               <ul className="agent-features">
-                <li>Personalized routes</li>
-                <li>Progress optimization</li>
-                <li>Adaptive recommendations</li>
+                <li>Gap analysis</li>
+                <li>Targeted practice</li>
+                <li>Progress insights</li>
               </ul>
             </div>
           </div>
