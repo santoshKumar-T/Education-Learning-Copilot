@@ -30,6 +30,16 @@ const DocumentAssistant = ({ user }) => {
     }
   }, [user]);
 
+  // Clear Q&A state when selected document changes
+  useEffect(() => {
+    if (selectedDocument) {
+      setQuestion('');
+      setAnswer(null);
+      setSources([]);
+      setQaError(null);
+    }
+  }, [selectedDocument?.id]);
+
   const loadDocuments = async () => {
     try {
       setLoading(true);
