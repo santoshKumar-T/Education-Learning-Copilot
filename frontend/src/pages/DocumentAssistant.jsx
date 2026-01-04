@@ -108,7 +108,9 @@ const DocumentAssistant = ({ user }) => {
 
     try {
       const response = await deleteDocument(documentId);
-      if (response.success) {
+      // API middleware returns { data, status, ... } - check response.data
+      const success = (response.data && response.data.success) || response.success;
+      if (success) {
         setDocuments(documents.filter(doc => doc.id !== documentId));
         if (selectedDocument?.id === documentId) {
           setSelectedDocument(null);
