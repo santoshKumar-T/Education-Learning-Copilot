@@ -7,6 +7,7 @@ import langchainRoutes from './routes/langchain/langchain.routes.js';
 import authRoutes from './routes/auth/auth.routes.js';
 import quizRoutes from './routes/quiz/quiz.routes.js';
 import lessonPlanRoutes from './routes/lesson-plan/lesson-plan.routes.js';
+import documentRoutes from './routes/document/document.routes.js';
 import { initializeLangChain } from './services/langchain/langchain-simple.service.js';
 import { connectDatabase } from './config/database.js';
 import { requestLogger, errorLogger, performanceLogger } from './middleware/logging/index.js';
@@ -81,6 +82,9 @@ app.use('/api/quiz', quizRoutes);
 
 // Lesson Plan routes
 app.use('/api/lesson-plan', lessonPlanRoutes);
+
+// Document routes
+app.use('/api/documents', documentRoutes);
 
 // Error handling middleware (using logging middleware)
 app.use(errorLogger);
