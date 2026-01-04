@@ -458,6 +458,102 @@
   color: var(--text-secondary);
 }
 
+/* Audio Controls Section */
+.audio-controls-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-light);
+}
+
+.audio-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.audio-setting {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.audio-setting label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.voice-select,
+.speed-select-input {
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-width: 120px;
+}
+
+.voice-select:hover,
+.speed-select-input:hover {
+  border-color: var(--primary-500);
+  background: var(--primary-50);
+}
+
+.voice-select:focus,
+.speed-select-input:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.btn-generate-audio {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-generate-audio:hover:not(:disabled) {
+  background: var(--primary-700);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-generate-audio:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.audio-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--primary-100);
+}
+
+.audio-section h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .document-layout {

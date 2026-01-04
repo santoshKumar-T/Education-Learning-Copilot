@@ -10,6 +10,7 @@ import {
   getDocument,
   deleteDocument
 } from '../../controllers/document.controller.js';
+import { serveAudioFile } from '../../controllers/tts.controller.js';
 import { authenticate } from '../../middleware/auth/auth.middleware.js';
 import { uploadSingle } from '../../middleware/upload.middleware.js';
 
@@ -38,6 +39,9 @@ router.get('/:id', getDocument);
 
 // Delete document
 router.delete('/:id', deleteDocument);
+
+// Serve audio files for documents
+router.get('/audio/:filename', serveAudioFile);
 
 export default router;
 

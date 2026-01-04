@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { uploadDocument, getDocuments, deleteDocument } from '../services/api/document.api.js';
+import { generateDocumentSummaryAudio, getAudioUrl } from '../services/api/tts.api.js';
+import AudioPlayer from '../components/common/AudioPlayer.jsx';
 import './DocumentAssistant.css';
 
 const DocumentAssistant = ({ user }) => {
@@ -9,6 +11,11 @@ const DocumentAssistant = ({ user }) => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [summaryLevel, setSummaryLevel] = useState('brief');
   const [dragActive, setDragActive] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [audioFilename, setAudioFilename] = useState(null);
+  const [generatingAudio, setGeneratingAudio] = useState(false);
+  const [voice, setVoice] = useState('alloy');
+  const [speed, setSpeed] = useState(1.0);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -128,6 +135,49 @@ const DocumentAssistant = ({ user }) => {
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const handleGenerateAudio = async () => {
+    if (!selectedDocument || selectedDocument.status !== 'completed') {
+      alert('Please select a completed document first.');
+      return;
+    }
+
+    const summaryText = selectedDocument.summary?.[summaryLevel];
+    if (!summaryText) {
+      alert(`No ${summaryLevel} summary available for this document.`);
+      return;
+    }
+
+    try {
+      setGeneratingAudio(true);
+      const response = await generateDocumentSummaryAudio(
+        selectedDocument.id,
+        summaryLevel,
+        voice,
+        speed
+      );
+
+      const success = (response.data && response.data.success) || response.success;
+      if (success) {
+        const audio = (response.data && response.data.audio) || response.audio;
+        const audioFileUrl = getAudioUrl(audio.filename);
+        setAudioUrl(audioFileUrl);
+        setAudioFilename(audio.filename);
+      }
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      alert('Failed to generate audio. Please try again.');
+    } finally {
+      setGeneratingAudio(false);
+    }
+  };
+
+  const handleSummaryLevelChange = (level) => {
+    setSummaryLevel(level);
+    // Clear audio when summary level changes
+    setAudioUrl(null);
+    setAudioFilename(null);
   };
 
   const getStatusBadge = (status) => {
@@ -264,23 +314,81 @@ const DocumentAssistant = ({ user }) => {
                   <div className="summary-selector">
                     <button
                       className={summaryLevel === 'brief' ? 'active' : ''}
-                      onClick={() => setSummaryLevel('brief')}
+                      onClick={() => handleSummaryLevelChange('brief')}
                     >
                       Brief
                     </button>
                     <button
                       className={summaryLevel === 'detailed' ? 'active' : ''}
-                      onClick={() => setSummaryLevel('detailed')}
+                      onClick={() => handleSummaryLevelChange('detailed')}
                     >
                       Detailed
                     </button>
                     <button
                       className={summaryLevel === 'comprehensive' ? 'active' : ''}
-                      onClick={() => setSummaryLevel('comprehensive')}
+                      onClick={() => handleSummaryLevelChange('comprehensive')}
                     >
                       Comprehensive
                     </button>
                   </div>
+
+                  {/* Audio Generation Controls */}
+                  {selectedDocument.summary && selectedDocument.summary[summaryLevel] && (
+                    <div className="audio-controls-section">
+                      <div className="audio-settings-row">
+                        <div className="audio-setting">
+                          <label>Voice:</label>
+                          <select
+                            value={voice}
+                            onChange={(e) => setVoice(e.target.value)}
+                            className="voice-select"
+                          >
+                            <option value="alloy">Alloy</option>
+                            <option value="echo">Echo</option>
+                            <option value="fable">Fable</option>
+                            <option value="onyx">Onyx</option>
+                            <option value="nova">Nova</option>
+                            <option value="shimmer">Shimmer</option>
+                          </select>
+                        </div>
+                        <div className="audio-setting">
+                          <label>Speed:</label>
+                          <select
+                            value={speed}
+                            onChange={(e) => setSpeed(parseFloat(e.target.value))}
+                            className="speed-select-input"
+                          >
+                            <option value="0.75">0.75x</option>
+                            <option value="1.0">1.0x</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                          </select>
+                        </div>
+                        <button
+                          className="btn-generate-audio"
+                          onClick={handleGenerateAudio}
+                          disabled={generatingAudio}
+                        >
+                          {generatingAudio ? '⏳ Generating...' : '🎤 Generate Audio'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Audio Player */}
+                  {audioUrl && (
+                    <div className="audio-section">
+                      <h3>🎧 Audio Summary</h3>
+                      <AudioPlayer
+                        audioUrl={audioUrl}
+                        filename={audioFilename || 'summary.mp3'}
+                        onDelete={() => {
+                          setAudioUrl(null);
+                          setAudioFilename(null);
+                        }}
+                      />
+                    </div>
+                  )}
 
                   {/* Summary Display */}
                   {selectedDocument.summary && selectedDocument.summary[summaryLevel] && (
