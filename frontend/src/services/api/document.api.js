@@ -16,11 +16,8 @@ export const uploadDocument = async (file) => {
   const formData = new FormData();
   formData.append('document', file);
 
-  return api.post(`${API_BASE_URL}/api/documents/upload`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  // Don't set Content-Type header - browser will set it automatically with boundary for FormData
+  return api.post(`${API_BASE_URL}/api/documents/upload`, formData);
 };
 
 /**

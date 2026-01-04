@@ -32,9 +32,12 @@ const requestInterceptor = (config) => {
     config.headers = {};
   }
 
-  // Set default Content-Type
+  // Set default Content-Type (but not for FormData - browser will set it with boundary)
   if (!config.headers['Content-Type'] && config.method !== 'GET') {
-    config.headers['Content-Type'] = 'application/json';
+    // Check if body is FormData - if so, don't set Content-Type (browser will handle it)
+    if (!(config.body instanceof FormData)) {
+      config.headers['Content-Type'] = 'application/json';
+    }
   }
 
   // Add authentication token if available
@@ -172,11 +175,25 @@ export const apiRequest = async (config) => {
     // Log request
     loggingMiddleware(processedConfig);
 
+    // Prepare body - don't stringify FormData
+    let requestBody = undefined;
+    if (processedConfig.body) {
+      if (processedConfig.body instanceof FormData) {
+        // FormData should be sent as-is (browser will set Content-Type with boundary)
+        requestBody = processedConfig.body;
+        // Remove Content-Type header for FormData - browser will set it automatically
+        delete processedConfig.headers['Content-Type'];
+      } else {
+        // JSON data - stringify it
+        requestBody = JSON.stringify(processedConfig.body);
+      }
+    }
+
     // Make fetch request
     const response = await fetch(processedConfig.url, {
       method: processedConfig.method || 'GET',
       headers: processedConfig.headers,
-      body: processedConfig.body ? JSON.stringify(processedConfig.body) : undefined,
+      body: requestBody,
       credentials: processedConfig.credentials,
     });
 
