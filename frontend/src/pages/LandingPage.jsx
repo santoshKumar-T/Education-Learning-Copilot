@@ -152,7 +152,11 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
             </p>
           </div>
           <div className="agents-grid">
-            <div className="agent-card hover-lift animate-fade-in-up">
+            <div 
+              className="agent-card hover-lift animate-fade-in-up"
+              onClick={() => user && onNavigate && onNavigate('quiz')}
+              style={{ cursor: user ? 'pointer' : 'default' }}
+            >
               <div className="agent-icon animate-pulse">🎲</div>
               <h3 className="agent-title">Quiz Generator Agent</h3>
               <p className="agent-description">
@@ -165,6 +169,18 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                 <li>Difficulty adaptation</li>
                 <li>Instant feedback</li>
               </ul>
+              {user && (
+                <button 
+                  className="btn-primary btn-small" 
+                  style={{ marginTop: '1rem', width: '100%' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate && onNavigate('quiz');
+                  }}
+                >
+                  Try Quiz Generator →
+                </button>
+              )}
             </div>
             <div className="agent-card hover-lift animate-fade-in-up animate-delay-200">
               <div className="agent-icon animate-pulse animate-delay-300">📚</div>
