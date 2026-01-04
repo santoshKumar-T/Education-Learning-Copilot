@@ -48,23 +48,31 @@ CRITICAL REQUIREMENTS - READ CAREFULLY:
 2. Create questions that require ACTUAL KNOWLEDGE from the document to answer correctly.
 3. Include questions where someone who hasn't read the document would likely get wrong.
 4. Make questions test DEEP UNDERSTANDING, not surface-level recall.
+5. **MOST IMPORTANT**: Create questions where there are plausible WRONG answers that sound correct but are actually incorrect.
 
 REQUIRED QUESTION TYPES (use ALL of these):
-- **Application Questions**: "How would you apply X principle in [specific scenario not mentioned in question]?"
-- **Analysis Questions**: "What are the potential consequences if X is not followed?" or "Why might X lead to Y outcome?"
-- **Comparison Questions**: "What distinguishes X from Y in terms of [specific aspect]?" (where the distinction isn't obvious)
-- **Scenario-Based Questions**: "In situation [specific scenario], what would be the appropriate action based on X?"
-- **Critical Thinking Questions**: "What would happen if [opposite of what document says]?" or "Why is X important for Y?"
-- **Interpretation Questions**: "What does the document suggest about [implicit concept]?"
-- **Synthesis Questions**: "How do concepts X and Y relate to each other in this context?"
+- **Precise Terminology Questions**: "What does DPO stand for?" (where wrong answers like "Data Protection Order" would be incorrect - only "Data Protection Officer" is correct)
+- **Distinction Questions**: "What is the difference between X and Y?" (where X and Y are similar concepts that could be confused)
+- **Common Misconception Questions**: Questions that test if user knows the correct concept vs common wrong understanding
+- **Application Questions**: "How would you apply X principle in [specific scenario]?" (where wrong application would be plausible)
+- **Analysis Questions**: "What are the potential consequences if X is not followed?" (where wrong consequences might seem plausible)
+- **Comparison Questions**: "What distinguishes X from Y?" (where the distinction isn't obvious and similar concepts could be confused)
+- **Scenario-Based Questions**: "In situation [specific scenario], what would be the appropriate action?" (where wrong actions might seem reasonable)
+- **Critical Thinking Questions**: "What would happen if [opposite of what document says]?" (where wrong outcomes might seem plausible)
+- **Interpretation Questions**: "What does the document suggest about [implicit concept]?" (where wrong interpretations might seem reasonable)
+- **Synthesis Questions**: "How do concepts X and Y relate?" (where wrong relationships might seem plausible)
 
-ANTI-GUESSING STRATEGIES:
-- Create questions where the answer requires understanding the CONTEXT and IMPLICATIONS
+ANTI-GUESSING STRATEGIES (MUST USE):
+- Create questions where there are SIMILAR-SOUNDING WRONG ANSWERS that could be confused
+- Include questions about PRECISE TERMINOLOGY where common mistakes exist (e.g., DPO vs DPA, GDPR vs GDRP)
+- Ask questions where COMMON MISCONCEPTIONS would lead to wrong answers
+- Test ability to DISTINGUISH between similar concepts that sound alike
+- Include questions where PLausible-SOUNDING WRONG ANSWERS exist
+- Create questions that test SPECIFIC KNOWLEDGE, not general understanding
+- Make questions where GUESSING would likely result in wrong answers
 - Include questions about EXCEPTIONS, EDGE CASES, or SPECIAL CIRCUMSTANCES
 - Ask about RELATIONSHIPS and CONNECTIONS between concepts
 - Test UNDERSTANDING OF PRINCIPLES, not just facts
-- Include questions about WHY and HOW, not just WHAT
-- Make questions that require INTERPRETATION and ANALYSIS
 
 AVOID:
 - Questions where the answer is obvious from the question text
@@ -92,20 +100,33 @@ STRICT REQUIREMENTS:
 1. Questions MUST require actual knowledge from the document - answers should NOT be obvious
 2. If someone blindly guesses "correct" on all questions without reading, they should get MANY WRONG
 3. Create questions that test DEEP UNDERSTANDING, not surface recall
-4. Include questions about:
+4. **CRITICAL**: Include questions where there are plausible WRONG answers that sound correct:
+   - Questions about precise terminology (e.g., "What is DPO?" - correct: "Data Protection Officer", wrong: "Data Protection Order")
+   - Questions where similar-sounding terms could be confused
+   - Questions that test if user can distinguish between similar concepts
+   - Questions where common misconceptions would lead to wrong answers
+5. Include questions about:
+   - Precise definitions and terminology (where wrong terms might sound similar)
+   - Distinctions between similar concepts
+   - Common misconceptions vs correct understanding
    - Implications and consequences
    - Relationships between concepts
    - Application in different contexts
    - Exceptions and edge cases
    - Why and how things work (not just what)
-5. Mix question types: application, analysis, critical thinking, synthesis, scenarios
-6. Each question should require INTERPRETING the content, not just recalling it
+6. Mix question types: precise terminology, distinction, misconception, application, analysis, critical thinking, synthesis, scenarios
+7. Each question should require KNOWING THE SPECIFIC CONTENT, not just general knowledge
 
 Content:
 ${truncatedText}
 
 Return a JSON object with a "flashcards" array containing exactly ${count} flashcards. 
-CRITICAL: Make questions where the answer is NOT obvious - they must require actual understanding of the document content.`;
+CRITICAL: Make questions where:
+- The answer is NOT obvious from the question
+- There are plausible-sounding WRONG answers that could be confused
+- Precise terminology and distinctions are tested
+- Common misconceptions are addressed
+- Someone guessing would likely get wrong answers`;
 
     console.log('   🤖 Calling OpenAI to generate flashcards...');
     const startTime = Date.now();
