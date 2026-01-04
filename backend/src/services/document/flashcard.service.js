@@ -51,12 +51,16 @@ Guidelines:
 - Make questions progressively more challenging based on difficulty level
 - ${difficultyInstructions[difficulty]}
 
-Return ONLY a valid JSON array of flashcards, no other text. Each flashcard should have this structure:
+Return ONLY a valid JSON object with a "flashcards" array. Each flashcard should have this structure:
 {
-  "question": "The question text",
-  "answer": "The answer text",
-  "category": "Category name (e.g., 'Definitions', 'Concepts', 'Processes', 'Facts')",
-  "difficulty": "${difficulty}"
+  "flashcards": [
+    {
+      "question": "The question text",
+      "answer": "The answer text",
+      "category": "Category name (e.g., 'Definitions', 'Concepts', 'Processes', 'Facts')",
+      "difficulty": "${difficulty}"
+    }
+  ]
 }`;
 
     const userMessage = `Generate exactly ${count} flashcards from the following educational content. Make them diverse, covering different aspects of the content:
