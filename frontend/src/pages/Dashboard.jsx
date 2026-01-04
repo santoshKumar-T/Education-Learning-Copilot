@@ -254,6 +254,14 @@ const Dashboard = ({ user, onLogout, onNavigate }) => {
             </button>
             <button 
               className="action-card"
+              onClick={() => onNavigate ? onNavigate('documents') : window.location.href = '/documents'}
+            >
+              <div className="action-icon">📄</div>
+              <h3>Document Assistant</h3>
+              <p>Upload & summarize documents</p>
+            </button>
+            <button 
+              className="action-card"
               onClick={() => onNavigate ? onNavigate('settings') : window.location.href = '/settings'}
             >
               <div className="action-icon">⚙️</div>
