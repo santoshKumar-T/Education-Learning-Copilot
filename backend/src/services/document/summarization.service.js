@@ -95,6 +95,39 @@ export const generateComprehensiveSummary = async (text) => {
 };
 
 /**
+ * Normalize importance value to valid enum
+ */
+const normalizeImportance = (value) => {
+  if (!value || typeof value !== 'string') {
+    return 'medium';
+  }
+  const normalized = value.toLowerCase().trim();
+  if (['high', 'medium', 'low'].includes(normalized)) {
+    return normalized;
+  }
+  // Default to medium if invalid
+  return 'medium';
+};
+
+/**
+ * Validate and normalize key topics array
+ */
+const validateKeyTopics = (topics) => {
+  if (!Array.isArray(topics)) {
+    return [];
+  }
+  
+  return topics
+    .filter(topic => topic && typeof topic === 'object')
+    .map(topic => ({
+      topic: String(topic.topic || topic.name || 'Unknown Topic').trim(),
+      importance: normalizeImportance(topic.importance)
+    }))
+    .filter(topic => topic.topic && topic.topic !== 'Unknown Topic')
+    .slice(0, 20); // Limit to 20 topics
+};
+
+/**
  * Extract key topics from text
  */
 export const extractKeyTopics = async (text) => {
@@ -104,11 +137,11 @@ export const extractKeyTopics = async (text) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful assistant that extracts key topics from educational content. Return a JSON array of topics with their importance level (high, medium, low). Format: [{"topic": "topic name", "importance": "high|medium|low"}]'
+          content: 'You are a helpful assistant that extracts key topics from educational content. Return a JSON object with a "topics" array. Each topic must have "topic" (string) and "importance" (must be exactly "high", "medium", or "low"). Format: {"topics": [{"topic": "topic name", "importance": "high"}]}'
         },
         {
           role: 'user',
-          content: `Extract the key topics from the following text and return as JSON array:\n\n${text.substring(0, 8000)}`
+          content: `Extract the key topics from the following text and return as JSON object with a "topics" array. Each topic must have "topic" and "importance" (must be exactly "high", "medium", or "low"):\n\n${text.substring(0, 8000)}`
         }
       ],
       temperature: 0.5,
@@ -119,20 +152,33 @@ export const extractKeyTopics = async (text) => {
     const content = response.choices[0].message.content.trim();
     const parsed = JSON.parse(content);
     
+    let topics = [];
+    
     // Handle different response formats
     if (Array.isArray(parsed)) {
-      return parsed;
+      topics = parsed;
     } else if (parsed.topics && Array.isArray(parsed.topics)) {
-      return parsed.topics;
+      topics = parsed.topics;
     } else if (parsed.keyTopics && Array.isArray(parsed.keyTopics)) {
-      return parsed.keyTopics;
+      topics = parsed.keyTopics;
     } else {
-      // Fallback: try to extract topics from text
-      return Object.entries(parsed).map(([topic, importance]) => ({
-        topic,
-        importance: importance || 'medium'
-      })).slice(0, 10);
+      // Fallback: try to extract topics from object entries
+      // Only if values are valid importance levels
+      const entries = Object.entries(parsed);
+      topics = entries
+        .filter(([key, value]) => {
+          const normalized = normalizeImportance(value);
+          return normalized !== 'medium' || String(value).toLowerCase() === 'medium';
+        })
+        .map(([topic, importance]) => ({
+          topic: String(topic).trim(),
+          importance: normalizeImportance(importance)
+        }))
+        .slice(0, 10);
     }
+    
+    // Validate and normalize all topics
+    return validateKeyTopics(topics);
   } catch (error) {
     console.error('Error extracting key topics:', error);
     // Return empty array on error instead of throwing
