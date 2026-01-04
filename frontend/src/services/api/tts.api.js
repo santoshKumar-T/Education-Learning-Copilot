@@ -3,9 +3,7 @@
  * Handles TTS generation and audio playback
  */
 
-import { api } from '../../../../middleware/frontend/api/index.js';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { api, getApiBaseUrl } from '../../middleware/api/index.js';
 
 /**
  * Generate audio from text
@@ -15,7 +13,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
  * @returns {Promise} Audio generation response
  */
 export const generateTTS = async (text, voice = 'alloy', speed = 1.0) => {
-  return api.post(`${API_BASE_URL}/api/tts/generate`, {
+  // Use relative path - middleware will add base URL
+  return api.post('/api/tts/generate', {
     text,
     voice,
     speed
@@ -31,7 +30,8 @@ export const generateTTS = async (text, voice = 'alloy', speed = 1.0) => {
  * @returns {Promise} Audio generation response
  */
 export const generateDocumentSummaryAudio = async (documentId, summaryLevel = 'brief', voice = 'alloy', speed = 1.0) => {
-  return api.post(`${API_BASE_URL}/api/tts/document/${documentId}`, {
+  // Use relative path - middleware will add base URL
+  return api.post(`/api/tts/document/${documentId}`, {
     summaryLevel,
     voice,
     speed
@@ -44,7 +44,7 @@ export const generateDocumentSummaryAudio = async (documentId, summaryLevel = 'b
  * @returns {string} Audio file URL
  */
 export const getAudioUrl = (filename) => {
-  const baseUrl = API_BASE_URL.replace(/\/$/, '');
+  const baseUrl = getApiBaseUrl();
   return `${baseUrl}/api/documents/audio/${filename}`;
 };
 
