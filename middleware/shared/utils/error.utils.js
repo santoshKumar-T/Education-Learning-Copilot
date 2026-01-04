@@ -4,6 +4,22 @@
  */
 
 /**
+ * Check if we're in development mode
+ * Works in both browser and Node.js environments
+ */
+const isDevelopment = () => {
+  // Browser environment (Vite)
+  if (typeof window !== 'undefined' && import.meta?.env?.MODE === 'development') {
+    return true;
+  }
+  // Node.js environment
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
+    return true;
+  }
+  return false;
+};
+
+/**
  * Standard error response format
  */
 export const createErrorResponse = (error, statusCode = 500) => {
@@ -12,7 +28,7 @@ export const createErrorResponse = (error, statusCode = 500) => {
     error: error.message || 'An error occurred',
     statusCode,
     timestamp: new Date().toISOString(),
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+    ...(isDevelopment() && { stack: error.stack }),
   };
 };
 
