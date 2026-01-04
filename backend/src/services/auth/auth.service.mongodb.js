@@ -84,8 +84,12 @@ export const registerUser = async (email, password, name = '') => {
     // Generate token
     const token = generateToken(user._id, user.email);
 
+    // Convert to JSON (password already excluded by schema transform)
+    const userJSON = user.toObject();
+    delete userJSON.password;
+
     return {
-      user: user.toJSON(), // Password excluded by schema transform
+      user: userJSON,
       token
     };
   } catch (error) {
@@ -135,8 +139,12 @@ export const loginUser = async (email, password) => {
     // Generate token
     const token = generateToken(user._id, user.email);
 
+    // Convert to JSON (password already excluded by schema transform)
+    const userJSON = user.toObject();
+    delete userJSON.password;
+
     return {
-      user: user.toJSON(), // Password excluded by schema transform
+      user: userJSON,
       token
     };
   } catch (error) {

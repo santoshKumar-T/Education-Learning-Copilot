@@ -96,6 +96,15 @@ userSchema.methods.removeSession = function(sessionId) {
   );
 };
 
+/**
+ * Convert user to JSON (public format without password)
+ */
+userSchema.methods.toPublicJSON = function() {
+  const userObject = this.toObject();
+  delete userObject.password;
+  return userObject;
+};
+
 const User = mongoose.model('User', userSchema);
 
 export default User;
