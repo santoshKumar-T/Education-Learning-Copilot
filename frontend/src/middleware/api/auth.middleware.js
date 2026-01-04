@@ -3,7 +3,8 @@
  * Handles authentication-related API operations
  */
 
-import { api, apiRequest } from './api.middleware.js';
+// Re-export from root middleware
+export * from '../../../middleware/frontend/api/auth.middleware.js';
 
 /**
  * Get authentication token from storage

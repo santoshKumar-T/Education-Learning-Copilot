@@ -1,15 +1,8 @@
 /**
  * API Middleware Index
- * Central export point for all API middleware
+ * Re-exports from root middleware folder for backward compatibility
  */
 
-export { api, apiRequest, API_BASE_URL, getApiBaseUrl } from './api.middleware.js';
-export {
-  getAuthToken,
-  setAuthToken,
-  removeAuthToken,
-  isAuthenticated,
-  getStoredUser,
-  setStoredUser,
-} from './auth.middleware.js';
+// Re-export from root middleware folder
+export * from '../../../middleware/frontend/api/index.js';
 

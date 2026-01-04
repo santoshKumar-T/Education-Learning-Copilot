@@ -3,7 +3,7 @@
  * Handles session API calls through middleware
  */
 
-import { api, isAuthenticated } from '../../middleware/api/index.js';
+import { api, isAuthenticated } from '../../../middleware/frontend/api/index.js';
 
 /**
  * Get current user's sessions
