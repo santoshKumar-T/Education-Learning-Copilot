@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
  * @returns {Promise<Object>} Session data
  */
 export const createSession = async () => {
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const API_BASE_URL = getApiBaseUrl();
   const token = localStorage.getItem('auth_token');
   
   try {
@@ -45,7 +45,7 @@ export const createSession = async () => {
  * @returns {Promise<Array>} Conversation history
  */
 export const getSessionHistory = async (sessionId) => {
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const API_BASE_URL = getApiBaseUrl();
   
   try {
     const response = await fetch(`${API_BASE_URL}/api/session/${sessionId}/history`);
