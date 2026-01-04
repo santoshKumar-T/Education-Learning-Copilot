@@ -5,6 +5,7 @@
 
 import { generateAudio, generateSummaryAudio, deleteAudioFile } from '../services/tts/tts.service.js';
 import Document from '../models/Document.js';
+import { dbQuery } from '../middleware/database/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -64,8 +65,11 @@ export const generateDocumentSummaryAudio = async (req, res) => {
       });
     }
 
-    // Get document
-    const document = await Document.findOne({ _id: documentId, userId });
+    // Get document (through database middleware)
+    const document = await dbQuery(async () => {
+      return await Document.findOne({ _id: documentId, userId });
+    }, { operationName: 'Get Document for TTS' });
+
     if (!document) {
       return res.status(404).json({
         success: false,

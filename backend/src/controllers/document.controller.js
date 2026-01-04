@@ -6,6 +6,7 @@
 import Document from '../models/Document.js';
 import { extractTextFromPDF, cleanText } from '../services/document/document.service.js';
 import { processDocumentContent } from '../services/document/summarization.service.js';
+import { dbWrite, dbQuery, safeDbOperation } from '../middleware/database/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -56,19 +57,21 @@ export const uploadDocument = async (req, res) => {
     console.log(`   File: ${req.file.originalname}`);
     console.log(`   Size: ${(req.file.size / 1024).toFixed(2)} KB`);
 
-    // Create document record
-    const document = new Document({
-      userId,
-      filename: req.file.filename,
-      originalName: req.file.originalname,
-      filePath: req.file.path,
-      fileSize: req.file.size,
-      mimeType: req.file.mimetype,
-      fileType: path.extname(req.file.originalname).slice(1).toLowerCase(),
-      status: 'processing'
-    });
-
-    await document.save();
+    // Create document record (through database middleware)
+    const document = await dbWrite(async () => {
+      const newDocument = new Document({
+        userId,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        filePath: req.file.path,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        fileType: path.extname(req.file.originalname).slice(1).toLowerCase(),
+        status: 'processing'
+      });
+      await newDocument.save();
+      return newDocument;
+    }, { operationName: 'Create Document' });
 
     // Process document asynchronously
     processDocumentAsync(document._id.toString(), req.file.path, req.file.mimetype)
@@ -101,7 +104,10 @@ export const uploadDocument = async (req, res) => {
  */
 const processDocumentAsync = async (documentId, filePath, mimeType) => {
   try {
-    const document = await Document.findById(documentId);
+    const document = await dbQuery(async () => {
+      return await Document.findById(documentId);
+    }, { operationName: 'Get Document for Processing' });
+
     if (!document) {
       console.error(`Document ${documentId} not found`);
       return;
@@ -122,37 +128,43 @@ const processDocumentAsync = async (documentId, filePath, mimeType) => {
     // Clean text
     extractedText = cleanText(extractedText);
     
-    // Update document with extracted text
-    document.extractedText = extractedText;
-    document.metadata = {
-      wordCount: extractedText.split(/\s+/).length,
-      pageCount: mimeType === 'application/pdf' ? extractedText.split('\f').length : 1
-    };
-    await document.save();
+    // Update document with extracted text (through database middleware)
+    await dbWrite(async () => {
+      document.extractedText = extractedText;
+      document.metadata = {
+        wordCount: extractedText.split(/\s+/).length,
+        pageCount: mimeType === 'application/pdf' ? extractedText.split('\f').length : 1
+      };
+      await document.save();
+    }, { operationName: 'Update Document with Extracted Text' });
 
     console.log(`   ✅ Text extracted: ${extractedText.length} characters`);
 
     // Generate summaries and extract topics
     const { summary, keyTopics, processingTime } = await processDocumentContent(extractedText);
 
-    // Update document with summaries and topics
-    document.summary = summary;
-    document.keyTopics = keyTopics;
-    document.status = 'completed';
-    document.metadata.processingTime = processingTime;
-    await document.save();
+    // Update document with summaries and topics (through database middleware)
+    await dbWrite(async () => {
+      document.summary = summary;
+      document.keyTopics = keyTopics;
+      document.status = 'completed';
+      document.metadata.processingTime = processingTime;
+      await document.save();
+    }, { operationName: 'Update Document with Summaries' });
 
     console.log(`   ✅ Processing completed for: ${document.originalName}`);
   } catch (error) {
     console.error(`   ❌ Error processing document ${documentId}:`, error);
     
-    // Update document status to failed
-    const document = await Document.findById(documentId);
-    if (document) {
-      document.status = 'failed';
-      document.error = error.message;
-      await document.save();
-    }
+    // Update document status to failed (through database middleware)
+    await safeDbOperation(async () => {
+      const document = await Document.findById(documentId);
+      if (document) {
+        document.status = 'failed';
+        document.error = error.message;
+        await document.save();
+      }
+    }, { operationName: 'Update Document Status to Failed' });
   }
 };
 
@@ -170,10 +182,12 @@ export const getUserDocuments = async (req, res) => {
       });
     }
 
-    const documents = await Document.find({ userId })
-      .sort({ createdAt: -1 })
-      .select('-extractedText') // Don't send full text to frontend
-      .lean();
+    const documents = await dbQuery(async () => {
+      return await Document.find({ userId })
+        .sort({ createdAt: -1 })
+        .select('-extractedText') // Don't send full text to frontend
+        .lean();
+    }, { operationName: 'Get User Documents' });
 
     res.json({
       success: true,
@@ -216,9 +230,11 @@ export const getDocument = async (req, res) => {
       });
     }
 
-    const document = await Document.findOne({ _id: documentId, userId })
-      .select('-extractedText') // Don't send full text
-      .lean();
+    const document = await dbQuery(async () => {
+      return await Document.findOne({ _id: documentId, userId })
+        .select('-extractedText') // Don't send full text
+        .lean();
+    }, { operationName: 'Get Document by ID' });
 
     if (!document) {
       return res.status(404).json({
@@ -268,7 +284,10 @@ export const deleteDocument = async (req, res) => {
       });
     }
 
-    const document = await Document.findOne({ _id: documentId, userId });
+    const document = await dbQuery(async () => {
+      return await Document.findOne({ _id: documentId, userId });
+    }, { operationName: 'Get Document for Deletion' });
+
     if (!document) {
       return res.status(404).json({
         success: false,
@@ -283,8 +302,10 @@ export const deleteDocument = async (req, res) => {
       console.warn('Error deleting file:', error);
     }
 
-    // Delete document from database
-    await Document.findByIdAndDelete(documentId);
+    // Delete document from database (through database middleware)
+    await dbWrite(async () => {
+      await Document.findByIdAndDelete(documentId);
+    }, { operationName: 'Delete Document' });
 
     res.json({
       success: true,
