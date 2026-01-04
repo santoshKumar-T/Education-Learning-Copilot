@@ -1,22 +1,9 @@
 /**
  * Quiz API Service
- * Handles quiz generation and validation API calls
+ * Handles quiz generation and validation API calls through middleware
  */
 
-// Normalize API base URL - remove trailing slash to prevent double slashes
-const getApiBaseUrl = () => {
-  const url = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  return url.replace(/\/+$/, ''); // Remove trailing slashes
-};
-
-const API_BASE_URL = getApiBaseUrl();
-
-/**
- * Get authentication token
- */
-const getAuthToken = () => {
-  return localStorage.getItem('auth_token');
-};
+import { api } from '../../middleware/api/index.js';
 
 /**
  * Generate quiz from topic
@@ -26,32 +13,12 @@ const getAuthToken = () => {
  */
 export const generateQuiz = async (topic, options = {}) => {
   try {
-    const token = getAuthToken();
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/quiz/generate`, {
-      method: 'POST',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify({
-        topic,
-        options,
-      }),
+    const response = await api.post('/api/quiz/generate', {
+      topic,
+      options,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error generating quiz:', error);
     throw error;
@@ -66,32 +33,12 @@ export const generateQuiz = async (topic, options = {}) => {
  */
 export const generateQuizFromConversation = async (sessionId, options = {}) => {
   try {
-    const token = getAuthToken();
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/quiz/generate-from-conversation`, {
-      method: 'POST',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify({
-        sessionId,
-        options,
-      }),
+    const response = await api.post('/api/quiz/generate-from-conversation', {
+      sessionId,
+      options,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error generating quiz from conversation:', error);
     throw error;
@@ -106,28 +53,14 @@ export const generateQuizFromConversation = async (sessionId, options = {}) => {
  */
 export const validateQuizAnswers = async (quiz, answers) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/quiz/validate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        quiz,
-        answers,
-      }),
-    });
+    const response = await api.post('/api/quiz/validate', {
+      quiz,
+      answers,
+    }, { skipAuth: true });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error validating quiz answers:', error);
     throw error;
   }
 };
-
