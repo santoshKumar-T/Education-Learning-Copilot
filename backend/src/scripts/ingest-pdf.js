@@ -35,9 +35,10 @@ const ingestPDF = async (pdfPath) => {
     console.log('✅ All configurations valid\n');
 
     // Resolve PDF path
+    // If relative, resolve from project root (two levels up from scripts directory)
     const resolvedPath = path.isAbsolute(pdfPath) 
       ? pdfPath 
-      : path.resolve(__dirname, pdfPath);
+      : path.resolve(__dirname, '../../..', pdfPath);
     
     console.log(`📂 PDF File: ${resolvedPath}`);
 
