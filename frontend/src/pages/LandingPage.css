@@ -127,6 +127,48 @@
   flex-shrink: 0;
 }
 
+/* Responsive Navigation */
+@media (max-width: 1024px) {
+  .logo-text {
+    font-size: 1.125rem;
+  }
+  
+  .nav-links {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.875rem 0;
+  }
+  
+  .logo-text {
+    display: none;
+  }
+  
+  .nav-links {
+    gap: 0.5rem;
+  }
+  
+  .nav-link,
+  .btn-link-nav {
+    font-size: 0.8125rem;
+    padding: 0.5rem;
+  }
+  
+  .user-name {
+    max-width: 100px;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+  }
+  
+  .btn-nav {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}
+
 /* Buttons */
 .btn-primary,
 .btn-secondary {
