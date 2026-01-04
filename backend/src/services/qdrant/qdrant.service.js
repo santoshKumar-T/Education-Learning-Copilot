@@ -14,11 +14,39 @@ let client = null;
  */
 const getClient = () => {
   if (!client) {
-    const config = getQdrantClientConfig();
-    client = new QdrantClient({
-      url: config.url,
-      apiKey: config.apiKey,
-    });
+    try {
+      const config = getQdrantClientConfig();
+      
+      // Log connection details (without exposing full API key)
+      const urlDisplay = config.url || 'NOT SET';
+      const apiKeyDisplay = config.apiKey 
+        ? `${config.apiKey.substring(0, 10)}...${config.apiKey.substring(config.apiKey.length - 4)}`
+        : 'NOT SET';
+      
+      console.log('🔌 [QDRANT] Initializing client...');
+      console.log(`   URL: ${urlDisplay}`);
+      console.log(`   API Key: ${apiKeyDisplay}`);
+      
+      if (!config.url) {
+        throw new Error('QDRANT_URL is not set. Please configure QDRANT_URL in environment variables.');
+      }
+      
+      if (!config.apiKey) {
+        throw new Error('QDRANT_API_KEY is not set. Please configure QDRANT_API_KEY in environment variables.');
+      }
+      
+      client = new QdrantClient({
+        url: config.url,
+        apiKey: config.apiKey,
+        // Disable version check to avoid compatibility warnings
+        checkCompatibility: false,
+      });
+      
+      console.log('✅ [QDRANT] Client initialized successfully');
+    } catch (error) {
+      console.error('❌ [QDRANT] Failed to initialize client:', error.message);
+      throw error;
+    }
   }
   return client;
 };
@@ -85,16 +113,27 @@ export const upsertVectors = async (points, collectionName = null) => {
  */
 export const searchVectors = async (vector, limit = 5, collectionName = null) => {
   const collection = collectionName || qdrantConfig.collectionName;
-  const client = getClient();
-
+  
   try {
+    const client = getClient();
+    
     const results = await client.search(collection, {
       vector: vector,
       limit: limit,
     });
     return results;
   } catch (error) {
-    console.error('Error searching vectors:', error);
+    console.error('❌ [QDRANT] Error searching vectors:', error.message);
+    
+    // Provide helpful error messages
+    if (error.message.includes('ECONNREFUSED') || error.message.includes('127.0.0.1')) {
+      throw new Error('Qdrant connection failed: Cannot connect to localhost in production. Please set QDRANT_URL to your cloud Qdrant instance URL in Railway environment variables.');
+    }
+    
+    if (error.message.includes('fetch failed')) {
+      throw new Error(`Qdrant connection failed: Unable to reach Qdrant server at ${qdrantConfig.url}. Please verify QDRANT_URL is correct and the server is accessible.`);
+    }
+    
     throw new Error(`Failed to search vectors: ${error.message}`);
   }
 };

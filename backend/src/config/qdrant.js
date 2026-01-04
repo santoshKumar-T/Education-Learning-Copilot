@@ -31,8 +31,22 @@ export const validateQdrantConfig = () => {
  * Get Qdrant client configuration
  */
 export const getQdrantClientConfig = () => {
+  // Validate URL is not localhost in production
+  const url = qdrantConfig.url;
+  if (!url) {
+    throw new Error('QDRANT_URL is not set in environment variables');
+  }
+  
+  // Check if URL is localhost (won't work in production)
+  if (url.includes('localhost') || url.includes('127.0.0.1')) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('QDRANT_URL cannot be localhost in production. Please set QDRANT_URL to your cloud Qdrant instance URL.');
+    }
+    console.warn('⚠️  QDRANT_URL is set to localhost. This will not work in production.');
+  }
+  
   return {
-    url: qdrantConfig.url,
+    url: url,
     apiKey: qdrantConfig.apiKey,
   };
 };
