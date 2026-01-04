@@ -58,7 +58,7 @@ export const uploadDocument = async (req, res) => {
     console.log(`   Size: ${(req.file.size / 1024).toFixed(2)} KB`);
 
     // Create document record (through database middleware)
-    const document = await dbWrite(async () => {
+    const result = await dbWrite(async () => {
       const newDocument = new Document({
         userId,
         filename: req.file.filename,
@@ -72,6 +72,12 @@ export const uploadDocument = async (req, res) => {
       await newDocument.save();
       return newDocument;
     }, { operationName: 'Create Document' });
+
+    // Extract document from middleware result
+    const document = result.data;
+    if (!document || !document._id) {
+      throw new Error('Failed to create document record');
+    }
 
     // Process document asynchronously
     processDocumentAsync(document._id.toString(), req.file.path, req.file.mimetype)
@@ -104,10 +110,11 @@ export const uploadDocument = async (req, res) => {
  */
 const processDocumentAsync = async (documentId, filePath, mimeType) => {
   try {
-    const document = await dbQuery(async () => {
+    const result = await dbQuery(async () => {
       return await Document.findById(documentId);
     }, { operationName: 'Get Document for Processing' });
 
+    const document = result.data;
     if (!document) {
       console.error(`Document ${documentId} not found`);
       return;
@@ -158,11 +165,11 @@ const processDocumentAsync = async (documentId, filePath, mimeType) => {
     
     // Update document status to failed (through database middleware)
     await safeDbOperation(async () => {
-      const document = await Document.findById(documentId);
-      if (document) {
-        document.status = 'failed';
-        document.error = error.message;
-        await document.save();
+      const doc = await Document.findById(documentId);
+      if (doc) {
+        doc.status = 'failed';
+        doc.error = error.message;
+        await doc.save();
       }
     }, { operationName: 'Update Document Status to Failed' });
   }
@@ -182,12 +189,15 @@ export const getUserDocuments = async (req, res) => {
       });
     }
 
-    const documents = await dbQuery(async () => {
+    const result = await dbQuery(async () => {
       return await Document.find({ userId })
         .sort({ createdAt: -1 })
         .select('-extractedText') // Don't send full text to frontend
         .lean();
     }, { operationName: 'Get User Documents' });
+
+    // Extract data from middleware result
+    const documents = result.data || [];
 
     res.json({
       success: true,
@@ -230,11 +240,13 @@ export const getDocument = async (req, res) => {
       });
     }
 
-    const document = await dbQuery(async () => {
+    const result = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId })
         .select('-extractedText') // Don't send full text
         .lean();
     }, { operationName: 'Get Document by ID' });
+
+    const document = result.data;
 
     if (!document) {
       return res.status(404).json({
@@ -284,10 +296,11 @@ export const deleteDocument = async (req, res) => {
       });
     }
 
-    const document = await dbQuery(async () => {
+    const result = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId });
     }, { operationName: 'Get Document for Deletion' });
 
+    const document = result.data;
     if (!document) {
       return res.status(404).json({
         success: false,

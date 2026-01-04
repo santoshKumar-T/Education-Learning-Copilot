@@ -32,10 +32,12 @@ export const askQuestion = async (req, res) => {
     }
 
     // Get document (through database middleware)
-    const document = await dbQuery(async () => {
+    const result = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId })
         .select('originalName status');
     }, { operationName: 'Get Document for Q&A' });
+
+    const document = result.data;
 
     if (!document) {
       return res.status(404).json({
@@ -111,10 +113,12 @@ export const searchDocumentContent = async (req, res) => {
     }
 
     // Get document (through database middleware)
-    const document = await dbQuery(async () => {
+    const result = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId })
         .select('originalName status');
     }, { operationName: 'Get Document for Search' });
+
+    const document = result.data;
 
     if (!document) {
       return res.status(404).json({
