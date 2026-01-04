@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import './LandingPage.css'
 import { FloatingParticles, DecorativeCircles, EducationIllustration } from '../components/common/Graphics'
+import { PerformanceMemoryIcon, LMSIcon, YouTubeIcon, WeakAreasIcon } from '../components/common/SectionIcons'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 
 const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
@@ -208,32 +209,40 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
           </div>
           <div className="integrations-content">
             <div className="integrations-grid">
-              <div className="integration-card">
-                <div className="integration-icon">🔗</div>
+              <div className="integration-card hover-lift animate-fade-in-up">
+                <div className="integration-icon-wrapper">
+                  <LMSIcon size={80} />
+                </div>
                 <h3 className="integration-title">LMS Integration</h3>
                 <p className="integration-description">
                   Connect with popular Learning Management Systems. Sync your courses, 
                   assignments, and progress seamlessly.
                 </p>
               </div>
-              <div className="integration-card">
-                <div className="integration-icon">▶️</div>
+              <div className="integration-card hover-lift animate-fade-in-up animate-delay-100">
+                <div className="integration-icon-wrapper">
+                  <YouTubeIcon size={80} />
+                </div>
                 <h3 className="integration-title">YouTube API</h3>
                 <p className="integration-description">
                   Access millions of educational videos. Integrate YouTube content 
                   directly into your learning paths and lesson plans.
                 </p>
               </div>
-              <div className="integration-card">
-                <div className="integration-icon">💾</div>
+              <div className="integration-card hover-lift animate-fade-in-up animate-delay-200">
+                <div className="integration-icon-wrapper">
+                  <PerformanceMemoryIcon size={80} />
+                </div>
                 <h3 className="integration-title">Student Performance Memory</h3>
                 <p className="integration-description">
                   Tracks and remembers your performance across all assessments. 
                   Builds a comprehensive profile of your learning journey.
                 </p>
               </div>
-              <div className="integration-card">
-                <div className="integration-icon">🎯</div>
+              <div className="integration-card hover-lift animate-fade-in-up animate-delay-300">
+                <div className="integration-icon-wrapper">
+                  <WeakAreasIcon size={80} />
+                </div>
                 <h3 className="integration-title">Weak Areas Detection</h3>
                 <p className="integration-description">
                   Identifies areas where you need more practice. Provides targeted 
