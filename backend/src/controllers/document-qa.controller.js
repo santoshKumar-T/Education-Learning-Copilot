@@ -32,12 +32,12 @@ export const askQuestion = async (req, res) => {
     }
 
     // Get document (through database middleware)
-    const result = await dbQuery(async () => {
+    const dbResult = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId })
         .select('originalName status');
     }, { operationName: 'Get Document for Q&A' });
 
-    const document = result.data;
+    const document = dbResult.data;
 
     if (!document) {
       return res.status(404).json({
