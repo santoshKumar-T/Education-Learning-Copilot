@@ -9,7 +9,9 @@
     "dev": "node --watch src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "verify-qdrant": "node src/scripts/verify-qdrant.js",
-    "ingest-pdf": "node src/scripts/ingest-pdf.js"
+    "ingest-pdf": "node src/scripts/ingest-pdf.js",
+    "view-qdrant": "node src/scripts/view-qdrant-data.js",
+    "view-vectors": "node src/scripts/view-vector-dimensions.js"
   },
   "keywords": [
     "education",
