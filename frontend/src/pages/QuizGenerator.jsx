@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateQuiz, generateQuizFromConversation } from '../services/api/quiz.api';
+import { generateQuiz, generateQuizFromConversation, validateQuizAnswers } from '../services/api/quiz.api';
 import { getMySessions } from '../services/api/session.api';
 import './QuizGenerator.css';
 
@@ -11,6 +11,9 @@ const QuizGenerator = ({ user, onNavigate }) => {
   const [generating, setGenerating] = useState(false);
   const [quiz, setQuiz] = useState(null);
   const [error, setError] = useState('');
+  const [userAnswers, setUserAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [quizResults, setQuizResults] = useState(null);
   const [options, setOptions] = useState({
     numQuestions: 5,
     difficulty: 'medium',
@@ -71,6 +74,45 @@ const QuizGenerator = ({ user, onNavigate }) => {
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handleAnswerChange = (questionId, answer) => {
+    setUserAnswers({
+      ...userAnswers,
+      [questionId]: answer,
+    });
+  };
+
+  const handleSubmitQuiz = async () => {
+    if (!quiz || !quiz.questions) {
+      setError('No quiz to submit');
+      return;
+    }
+
+    // Validate all questions are answered
+    const unanswered = quiz.questions.filter(q => !userAnswers[q.id || q.question]);
+    if (unanswered.length > 0) {
+      setError(`Please answer all questions. ${unanswered.length} question(s) unanswered.`);
+      return;
+    }
+
+    try {
+      const result = await validateQuizAnswers(quiz, userAnswers);
+      setQuizResults(result);
+      setSubmitted(true);
+      setError('');
+    } catch (err) {
+      setError(err.message || 'Failed to validate quiz. Please try again.');
+      console.error('Quiz validation error:', err);
+    }
+  };
+
+  const handleResetQuiz = () => {
+    setQuiz(null);
+    setUserAnswers({});
+    setSubmitted(false);
+    setQuizResults(null);
+    setError('');
   };
 
   return (
@@ -279,48 +321,152 @@ const QuizGenerator = ({ user, onNavigate }) => {
               </div>
 
               <div className="quiz-questions">
-                {quiz.questions?.map((question, index) => (
-                  <div key={question.id || index} className="question-card">
-                    <div className="question-header">
-                      <span className="question-number">Q{index + 1}</span>
-                      <span className="question-type">{question.type}</span>
+                {quiz.questions?.map((question, index) => {
+                  const questionId = question.id || question.question || index;
+                  const userAnswer = userAnswers[questionId];
+                  const correctAnswer = question.correctAnswer || question.answer;
+                  const isCorrect = submitted && userAnswer === correctAnswer;
+                  const showAnswer = submitted && quizResults;
+
+                  return (
+                    <div key={questionId} className="question-card">
+                      <div className="question-header">
+                        <span className="question-number">Q{index + 1}</span>
+                        <span className="question-type">{question.type}</span>
+                        {showAnswer && (
+                          <span className={`answer-badge ${isCorrect ? 'correct' : 'incorrect'}`}>
+                            {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="question-text">{question.question}</h3>
+                      
+                      {question.type === 'multiple-choice' && question.options && (
+                        <div className="question-options">
+                          {question.options.map((option, optIndex) => {
+                            const optionLabel = String.fromCharCode(65 + optIndex);
+                            const isSelected = userAnswer === optionLabel || userAnswer === option;
+                            const isCorrectOption = correctAnswer === optionLabel || correctAnswer === option;
+                            
+                            return (
+                              <label 
+                                key={optIndex} 
+                                className={`option-item ${isSelected ? 'selected' : ''} ${showAnswer && isCorrectOption ? 'correct-answer' : ''} ${showAnswer && isSelected && !isCorrectOption ? 'wrong-answer' : ''}`}
+                                style={{ cursor: submitted ? 'default' : 'pointer' }}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`question-${questionId}`}
+                                  value={optionLabel}
+                                  checked={isSelected}
+                                  onChange={() => !submitted && handleAnswerChange(questionId, optionLabel)}
+                                  disabled={submitted}
+                                />
+                                <span className="option-label">{optionLabel}</span>
+                                <span className="option-text">{option}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {question.type === 'true-false' && (
+                        <div className="question-options">
+                          {['True', 'False'].map((option) => {
+                            const isSelected = userAnswer === option;
+                            const isCorrectOption = correctAnswer === option;
+                            
+                            return (
+                              <label 
+                                key={option}
+                                className={`option-item ${isSelected ? 'selected' : ''} ${showAnswer && isCorrectOption ? 'correct-answer' : ''} ${showAnswer && isSelected && !isCorrectOption ? 'wrong-answer' : ''}`}
+                                style={{ cursor: submitted ? 'default' : 'pointer' }}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`question-${questionId}`}
+                                  value={option}
+                                  checked={isSelected}
+                                  onChange={() => !submitted && handleAnswerChange(questionId, option)}
+                                  disabled={submitted}
+                                />
+                                <span className="option-text">{option}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {question.type === 'short-answer' && (
+                        <div className="short-answer-input">
+                          <textarea
+                            value={userAnswer || ''}
+                            onChange={(e) => !submitted && handleAnswerChange(questionId, e.target.value)}
+                            placeholder="Type your answer here..."
+                            disabled={submitted}
+                            rows="3"
+                          />
+                        </div>
+                      )}
+
+                      {showAnswer && question.explanation && (
+                        <div className="question-explanation">
+                          <strong>Explanation:</strong> {question.explanation}
+                        </div>
+                      )}
+
+                      {showAnswer && (
+                        <div className="correct-answer-display">
+                          <strong>Correct Answer:</strong> {correctAnswer}
+                        </div>
+                      )}
                     </div>
-                    <h3 className="question-text">{question.question}</h3>
-                    
-                    {question.type === 'multiple-choice' && question.options && (
-                      <div className="question-options">
-                        {question.options.map((option, optIndex) => (
-                          <div key={optIndex} className="option-item">
-                            <span className="option-label">{String.fromCharCode(65 + optIndex)}</span>
-                            <span className="option-text">{option}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {question.type === 'true-false' && (
-                      <div className="question-options">
-                        <div className="option-item">True</div>
-                        <div className="option-item">False</div>
-                      </div>
-                    )}
-
-                    {question.explanation && (
-                      <div className="question-explanation">
-                        <strong>Explanation:</strong> {question.explanation}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
+              {!submitted && (
+                <div className="quiz-submit-section">
+                  <button 
+                    className="btn-primary btn-large"
+                    onClick={handleSubmitQuiz}
+                    disabled={Object.keys(userAnswers).length < quiz.questions?.length}
+                  >
+                    📝 Submit Quiz
+                  </button>
+                  <p className="submit-help">
+                    {Object.keys(userAnswers).length} of {quiz.questions?.length} questions answered
+                  </p>
+                </div>
+              )}
+
+              {submitted && quizResults && (
+                <div className="quiz-results">
+                  <div className="results-header">
+                    <h2>Quiz Results</h2>
+                    <div className="score-display">
+                      <div className="score-circle">
+                        <span className="score-number">{quizResults.score || 0}%</span>
+                        <span className="score-label">Score</span>
+                      </div>
+                      <div className="score-details">
+                        <p><strong>Correct:</strong> {quizResults.correctCount || 0} / {quizResults.totalQuestions || quiz.questions?.length || 0}</p>
+                        <p><strong>Incorrect:</strong> {(quizResults.totalQuestions || quiz.questions?.length || 0) - (quizResults.correctCount || 0)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="quiz-actions">
-                <button className="btn-secondary" onClick={() => setQuiz(null)}>
+                <button className="btn-secondary" onClick={handleResetQuiz}>
                   Generate Another Quiz
                 </button>
-                <button className="btn-primary" onClick={() => window.print()}>
-                  📄 Print Quiz
-                </button>
+                {submitted && (
+                  <button className="btn-primary" onClick={() => window.print()}>
+                    📄 Print Results
+                  </button>
+                )}
               </div>
             </div>
           )}
