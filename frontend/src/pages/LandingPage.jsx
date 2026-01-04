@@ -98,21 +98,69 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                 Get content recommendations tailored just for you.
               </p>
             </div>
-            <div className="feature-card hover-lift animate-fade-in-up animate-delay-100">
+            <div 
+              className="feature-card hover-lift animate-fade-in-up animate-delay-100"
+              onClick={() => {
+                if (user) {
+                  onNavigate && onNavigate('quiz');
+                } else {
+                  onLogin && onLogin();
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="feature-icon animate-float animate-delay-200">❓</div>
               <h3 className="feature-title">Quiz Generation</h3>
               <p className="feature-description">
                 AI-powered quiz creation from your course materials. Generate comprehensive 
                 assessments instantly to test your understanding.
               </p>
+              <button 
+                className="btn-primary btn-small" 
+                style={{ marginTop: '1rem', width: '100%' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (user) {
+                    onNavigate && onNavigate('quiz');
+                  } else {
+                    onLogin && onLogin();
+                  }
+                }}
+              >
+                {user ? 'Try Quiz Generator →' : 'Login to Try →'}
+              </button>
             </div>
-            <div className="feature-card hover-lift animate-fade-in-up animate-delay-200">
+            <div 
+              className="feature-card hover-lift animate-fade-in-up animate-delay-200"
+              onClick={() => {
+                if (user) {
+                  onNavigate && onNavigate('lesson-plan');
+                } else {
+                  onLogin && onLogin();
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="feature-icon animate-float animate-delay-300">📋</div>
               <h3 className="feature-title">Lesson Plans</h3>
               <p className="feature-description">
                 Intelligent lesson planning that structures your learning journey. 
                 Break down complex topics into manageable, sequential lessons.
               </p>
+              <button 
+                className="btn-primary btn-small" 
+                style={{ marginTop: '1rem', width: '100%' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (user) {
+                    onNavigate && onNavigate('lesson-plan');
+                  } else {
+                    onLogin && onLogin();
+                  }
+                }}
+              >
+                {user ? 'Try Lesson Planner →' : 'Login to Try →'}
+              </button>
             </div>
             <div className="feature-card hover-lift animate-fade-in-up animate-delay-300">
               <div className="feature-icon animate-float animate-delay-400">🧠</div>
