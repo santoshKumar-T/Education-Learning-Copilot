@@ -43,15 +43,39 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configure multer
+// Configure multer with increased limits
 export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max file size
+    fileSize: 50 * 1024 * 1024, // 50MB max file size (increased from 10MB)
+    fieldSize: 10 * 1024 * 1024, // 10MB max field size
   }
 });
 
-// Single file upload middleware
-export const uploadSingle = upload.single('document');
+// Single file upload middleware with error handling
+export const uploadSingle = (req, res, next) => {
+  upload.single('document')(req, res, (err) => {
+    if (err) {
+      // Handle multer errors
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({
+          success: false,
+          error: 'File too large. Maximum file size is 50MB.'
+        });
+      }
+      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({
+          success: false,
+          error: 'Unexpected file field. Use "document" as the field name.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        error: err.message || 'File upload error'
+      });
+    }
+    next();
+  });
+};
 

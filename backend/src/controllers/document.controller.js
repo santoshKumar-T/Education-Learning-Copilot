@@ -19,7 +19,22 @@ const __dirname = path.dirname(__filename);
  */
 export const uploadDocument = async (req, res) => {
   try {
+    // Handle multer errors (file too large, etc.)
+    if (req.fileValidationError) {
+      return res.status(400).json({
+        success: false,
+        error: req.fileValidationError
+      });
+    }
+
     if (!req.file) {
+      // Check if it's a size limit error
+      if (req.error && req.error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({
+          success: false,
+          error: 'File too large. Maximum file size is 50MB.'
+        });
+      }
       return res.status(400).json({
         success: false,
         error: 'No file uploaded'

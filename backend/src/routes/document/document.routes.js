@@ -18,8 +18,17 @@ const router = express.Router();
 // All document routes require authentication
 router.use(authenticate);
 
-// Upload document
-router.post('/upload', uploadSingle, uploadDocument);
+// Upload document with timeout handling
+router.post('/upload', (req, res, next) => {
+  // Set timeout to 5 minutes for large file uploads
+  req.setTimeout(5 * 60 * 1000, () => {
+    res.status(408).json({
+      success: false,
+      error: 'Upload timeout. File may be too large or connection is slow.'
+    });
+  });
+  next();
+}, uploadSingle, uploadDocument);
 
 // Get user's documents
 router.get('/', getUserDocuments);
