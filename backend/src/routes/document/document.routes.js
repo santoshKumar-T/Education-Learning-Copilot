@@ -16,7 +16,10 @@ import { uploadSingle } from '../../middleware/upload.middleware.js';
 
 const router = express.Router();
 
-// All document routes require authentication
+// Serve audio files (public - unique filenames provide security)
+router.get('/audio/:filename', serveAudioFile);
+
+// All other document routes require authentication
 router.use(authenticate);
 
 // Upload document with timeout handling
@@ -39,9 +42,6 @@ router.get('/:id', getDocument);
 
 // Delete document
 router.delete('/:id', deleteDocument);
-
-// Serve audio files for documents
-router.get('/audio/:filename', serveAudioFile);
 
 export default router;
 

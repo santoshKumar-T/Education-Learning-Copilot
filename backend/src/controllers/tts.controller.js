@@ -121,6 +121,7 @@ export const generateDocumentSummaryAudio = async (req, res) => {
 /**
  * Serve audio file
  * GET /api/documents/audio/:filename
+ * Public endpoint - unique filenames provide security
  */
 export const serveAudioFile = async (req, res) => {
   try {
@@ -147,12 +148,34 @@ export const serveAudioFile = async (req, res) => {
       });
     }
 
-    // Set headers for audio streaming
+    // Get file stats for Content-Length header
+    const stats = await fs.stat(audioPath);
+    const fileSize = stats.size;
+
+    // Set headers for audio streaming with CORS
     res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Length', fileSize);
     res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
     res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+    res.setHeader('Accept-Ranges', 'bytes'); // Support range requests for seeking
 
-    // Stream the file
+    // Handle range requests (for seeking in audio player)
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const fileBuffer = await fs.readFile(audioPath);
+      const chunk = fileBuffer.slice(start, end + 1);
+
+      res.status(206); // Partial Content
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+      res.setHeader('Content-Length', chunksize);
+      return res.send(chunk);
+    }
+
+    // Stream the full file
     const fileBuffer = await fs.readFile(audioPath);
     res.send(fileBuffer);
   } catch (error) {

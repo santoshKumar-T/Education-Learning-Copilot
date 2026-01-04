@@ -28,16 +28,22 @@ const AudioPlayer = ({ audioUrl, filename, onDelete }) => {
     };
   }, [audioUrl]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
+    try {
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        await audio.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      alert('Failed to play audio. Please check if the audio file is accessible.');
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (e) => {
@@ -83,13 +89,41 @@ const AudioPlayer = ({ audioUrl, filename, onDelete }) => {
     document.body.removeChild(link);
   };
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioUrl) return;
+
+    const handleError = (e) => {
+      console.error('Audio playback error:', e);
+      setIsPlaying(false);
+      alert('Failed to load audio. Please try generating audio again.');
+    };
+
+    const handleCanPlay = () => {
+      console.log('Audio can play');
+    };
+
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('canplay', handleCanPlay);
+
+    return () => {
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('canplay', handleCanPlay);
+    };
+  }, [audioUrl]);
+
   if (!audioUrl) {
     return null;
   }
 
   return (
     <div className="audio-player">
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+      <audio 
+        ref={audioRef} 
+        src={audioUrl} 
+        preload="metadata"
+        crossOrigin="anonymous"
+      />
       
       <div className="audio-controls">
         <button 
