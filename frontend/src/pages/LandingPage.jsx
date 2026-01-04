@@ -16,11 +16,8 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
               <span className="logo-text">Education & Learning Copilot</span>
             </div>
             <div className="nav-links">
-              <a href="#features">Features</a>
-              <a href="#agents">Agents</a>
-              <a href="#integrations">Integrations</a>
               {user ? (
-                <div className="user-menu">
+                <>
                   <button 
                     className="btn-link-nav" 
                     onClick={() => onNavigate && onNavigate('dashboard')}
@@ -39,11 +36,16 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                   >
                     Settings
                   </button>
-                  <span className="user-name">👤 {user.name || user.email}</span>
-                  <button className="btn-secondary" onClick={onLogout}>Logout</button>
-                </div>
+                  <span className="user-name">{user.name || user.email}</span>
+                  <button className="btn-secondary btn-nav" onClick={onLogout}>Logout</button>
+                </>
               ) : (
-                <button className="btn-primary" onClick={onLogin}>Login / Sign Up</button>
+                <>
+                  <a href="#features" className="nav-link">Features</a>
+                  <a href="#agents" className="nav-link">Agents</a>
+                  <a href="#integrations" className="nav-link">Integrations</a>
+                  <button className="btn-primary btn-nav" onClick={onLogin}>Login / Sign Up</button>
+                </>
               )}
             </div>
           </div>
