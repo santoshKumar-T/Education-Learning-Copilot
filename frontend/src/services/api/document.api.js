@@ -74,3 +74,21 @@ export const searchDocumentContent = async (documentId, query, topK = 10) => {
   });
 };
 
+/**
+ * Generate flashcards from a document
+ * @param {string} documentId - Document ID
+ * @param {number} count - Number of flashcards to generate (default: 10)
+ * @param {string} difficulty - Difficulty level: 'easy', 'medium', 'hard' (default: 'medium')
+ * @param {boolean} useSummary - Whether to use summary instead of full text (default: false)
+ * @param {string} summaryLevel - Summary level to use: 'brief', 'detailed', 'comprehensive' (default: 'detailed')
+ * @returns {Promise<Object>} Flashcards response
+ */
+export const generateFlashcards = async (documentId, count = 10, difficulty = 'medium', useSummary = false, summaryLevel = 'detailed') => {
+  return api.post(`${API_BASE_URL}/api/documents/${documentId}/flashcards`, {
+    count,
+    difficulty,
+    useSummary,
+    summaryLevel
+  });
+};
+

@@ -12,6 +12,7 @@ import {
 } from '../../controllers/document.controller.js';
 import { serveAudioFile } from '../../controllers/tts.controller.js';
 import { askQuestion, searchDocumentContent } from '../../controllers/document-qa.controller.js';
+import { generateDocumentFlashcards } from '../../controllers/flashcard.controller.js';
 import { authenticate } from '../../middleware/auth/auth.middleware.js';
 import { uploadSingle } from '../../middleware/upload.middleware.js';
 
@@ -50,6 +51,9 @@ router.post('/:id/qa', askQuestion);
 
 // Search document content
 router.post('/:id/search', searchDocumentContent);
+
+// Flashcard generation
+router.post('/:id/flashcards', generateDocumentFlashcards);
 
 export default router;
 

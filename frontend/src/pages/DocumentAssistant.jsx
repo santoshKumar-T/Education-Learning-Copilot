@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { uploadDocument, getDocuments, deleteDocument, askDocumentQuestion } from '../services/api/document.api.js';
+import { uploadDocument, getDocuments, deleteDocument, askDocumentQuestion, generateFlashcards } from '../services/api/document.api.js';
 import { generateDocumentSummaryAudio, getAudioUrl } from '../services/api/tts.api.js';
 import AudioPlayer from '../components/common/AudioPlayer.jsx';
+import Flashcard from '../components/common/Flashcard.jsx';
 import './DocumentAssistant.css';
 
 const DocumentAssistant = ({ user }) => {
@@ -21,6 +22,12 @@ const DocumentAssistant = ({ user }) => {
   const [sources, setSources] = useState([]);
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [qaError, setQaError] = useState(null);
+  const [flashcards, setFlashcards] = useState([]);
+  const [generatingFlashcards, setGeneratingFlashcards] = useState(false);
+  const [flashcardError, setFlashcardError] = useState(null);
+  const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
+  const [flashcardFlipped, setFlashcardFlipped] = useState(false);
+  const [flashcardStats, setFlashcardStats] = useState({ correct: 0, incorrect: 0 });
   const fileInputRef = useRef(null);
   const questionInputRef = useRef(null);
 
@@ -242,6 +249,78 @@ const DocumentAssistant = ({ user }) => {
     setAnswer(null);
     setSources([]);
     setQaError(null);
+  };
+
+  const handleGenerateFlashcards = async (count = 10, difficulty = 'medium', useSummary = false) => {
+    if (!selectedDocument || selectedDocument.status !== 'completed') {
+      alert('Please select a completed document first.');
+      return;
+    }
+
+    try {
+      setGeneratingFlashcards(true);
+      setFlashcardError(null);
+
+      const response = await generateFlashcards(
+        selectedDocument.id,
+        count,
+        difficulty,
+        useSummary,
+        summaryLevel
+      );
+
+      const success = (response.data && response.data.success) || response.success;
+      if (success) {
+        const data = response.data || response;
+        setFlashcards(data.flashcards || []);
+        setCurrentFlashcardIndex(0);
+        setFlashcardFlipped(false);
+        setFlashcardStats({ correct: 0, incorrect: 0 });
+      } else {
+        setFlashcardError('Failed to generate flashcards. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error generating flashcards:', error);
+      setFlashcardError(error.message || 'Failed to generate flashcards. Please try again.');
+    } finally {
+      setGeneratingFlashcards(false);
+    }
+  };
+
+  const handleFlashcardFlip = () => {
+    setFlashcardFlipped(!flashcardFlipped);
+  };
+
+  const handleFlashcardNext = () => {
+    if (currentFlashcardIndex < flashcards.length - 1) {
+      setCurrentFlashcardIndex(currentFlashcardIndex + 1);
+      setFlashcardFlipped(false);
+    }
+  };
+
+  const handleFlashcardPrevious = () => {
+    if (currentFlashcardIndex > 0) {
+      setCurrentFlashcardIndex(currentFlashcardIndex - 1);
+      setFlashcardFlipped(false);
+    }
+  };
+
+  const handleMarkCorrect = () => {
+    setFlashcardStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+    setTimeout(() => {
+      if (currentFlashcardIndex < flashcards.length - 1) {
+        handleFlashcardNext();
+      }
+    }, 500);
+  };
+
+  const handleMarkIncorrect = () => {
+    setFlashcardStats(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+    setTimeout(() => {
+      if (currentFlashcardIndex < flashcards.length - 1) {
+        handleFlashcardNext();
+      }
+    }, 500);
   };
 
   const getStatusBadge = (status) => {
@@ -489,6 +568,122 @@ const DocumentAssistant = ({ user }) => {
                       </div>
                     </div>
                   )}
+
+                  {/* Flashcard Section */}
+                  <div className="flashcard-section">
+                    <h3>📚 Study Flashcards</h3>
+                    <p className="flashcard-description">Generate flashcards from this document to test your knowledge and improve retention.</p>
+                    
+                    {flashcards.length === 0 ? (
+                      <div className="flashcard-generator">
+                        <div className="flashcard-options">
+                          <div className="flashcard-option">
+                            <label>Number of Cards:</label>
+                            <select id="flashcard-count" className="flashcard-select" defaultValue="10">
+                              <option value="5">5</option>
+                              <option value="10">10</option>
+                              <option value="15">15</option>
+                              <option value="20">20</option>
+                            </select>
+                          </div>
+                          <div className="flashcard-option">
+                            <label>Difficulty:</label>
+                            <select id="flashcard-difficulty" className="flashcard-select" defaultValue="medium">
+                              <option value="easy">Easy</option>
+                              <option value="medium">Medium</option>
+                              <option value="hard">Hard</option>
+                            </select>
+                          </div>
+                          <div className="flashcard-option">
+                            <label>
+                              <input
+                                type="checkbox"
+                                id="flashcard-use-summary"
+                                defaultChecked={false}
+                              />
+                              Use Summary (Faster)
+                            </label>
+                          </div>
+                        </div>
+                        <button
+                          className="btn-generate-flashcards"
+                          onClick={() => {
+                            const count = parseInt(document.getElementById('flashcard-count')?.value || 10);
+                            const difficulty = document.getElementById('flashcard-difficulty')?.value || 'medium';
+                            const useSummary = document.getElementById('flashcard-use-summary')?.checked || false;
+                            handleGenerateFlashcards(count, difficulty, useSummary);
+                          }}
+                          disabled={generatingFlashcards}
+                        >
+                          {generatingFlashcards ? '⏳ Generating...' : '🎴 Generate Flashcards'}
+                        </button>
+                        {flashcardError && (
+                          <div className="flashcard-error">
+                            <p>❌ {flashcardError}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flashcard-study-container">
+                        <div className="flashcard-progress">
+                          <div className="flashcard-progress-text">
+                            Card {currentFlashcardIndex + 1} of {flashcards.length}
+                          </div>
+                          <div className="flashcard-progress-bar">
+                            <div
+                              className="flashcard-progress-fill"
+                              style={{ width: `${((currentFlashcardIndex + 1) / flashcards.length) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        <Flashcard
+                          card={flashcards[currentFlashcardIndex]}
+                          isFlipped={flashcardFlipped}
+                          onFlip={handleFlashcardFlip}
+                          onMarkCorrect={handleMarkCorrect}
+                          onMarkIncorrect={handleMarkIncorrect}
+                        />
+
+                        <div className="flashcard-controls">
+                          <button
+                            className="btn-nav-card"
+                            onClick={handleFlashcardPrevious}
+                            disabled={currentFlashcardIndex === 0}
+                          >
+                            ← Previous
+                          </button>
+                          <button className="btn-flip-card" onClick={handleFlashcardFlip}>
+                            {flashcardFlipped ? 'Show Question' : 'Show Answer'}
+                          </button>
+                          <button
+                            className="btn-nav-card"
+                            onClick={handleFlashcardNext}
+                            disabled={currentFlashcardIndex === flashcards.length - 1}
+                          >
+                            Next →
+                          </button>
+                        </div>
+
+                        <div className="flashcard-stats">
+                          <span>✅ Correct: {flashcardStats.correct}</span>
+                          <span>❌ Incorrect: {flashcardStats.incorrect}</span>
+                        </div>
+
+                        <button
+                          className="btn-reset-flashcards"
+                          onClick={() => {
+                            setFlashcards([]);
+                            setCurrentFlashcardIndex(0);
+                            setFlashcardFlipped(false);
+                            setFlashcardStats({ correct: 0, incorrect: 0 });
+                          }}
+                        >
+                          Generate New Set
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Q&A Section */}
                   <div className="qa-section">
