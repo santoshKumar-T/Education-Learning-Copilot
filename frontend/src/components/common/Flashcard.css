@@ -153,6 +153,29 @@
   box-shadow: var(--shadow-md);
 }
 
+.btn-mark-correct:disabled,
+.btn-mark-incorrect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.flashcard.answered .flashcard-back {
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+}
+
+.flashcard-answered-message {
+  text-align: center;
+  padding: 0.875rem 1.5rem;
+  background: var(--success-100);
+  color: var(--success-700);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  width: 100%;
+}
+
 /* Flashcard Study Mode */
 .flashcard-study-container {
   display: flex;
