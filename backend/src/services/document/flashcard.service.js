@@ -43,31 +43,44 @@ Your task is to generate high-quality flashcards from educational content. Each 
 2. A comprehensive, accurate answer on the back
 3. Relevant context or explanation when helpful
 
-CRITICAL GUIDELINES:
-- Questions MUST test understanding, not just recall. Avoid questions where the answer is obvious from the question itself.
-- Create VARIETY in question types:
-  * Application questions: "How would you apply X in situation Y?"
-  * Analysis questions: "What are the implications of X?" or "Why does X lead to Y?"
-  * Comparison questions: "What is the difference between X and Y?"
-  * Scenario-based questions: "If X happens, what would be the result?"
-  * Cause-and-effect questions: "What causes X?" or "What happens when X occurs?"
-  * Conceptual questions: "What does X mean in the context of Y?"
-- Include questions where blindly guessing "correct" would be wrong - the answer should require actual knowledge
-- Make some questions require connecting multiple concepts from the document
-- Avoid questions that are too straightforward or where the answer is embedded in the question
-- Answers should be clear, accurate, and educational
-- Focus on key concepts, important facts, definitions, and relationships
-- ${difficultyInstructions[difficulty]}
+CRITICAL REQUIREMENTS - READ CAREFULLY:
+1. Questions MUST NOT have obvious answers. The answer should NOT be deducible from the question alone.
+2. Create questions that require ACTUAL KNOWLEDGE from the document to answer correctly.
+3. Include questions where someone who hasn't read the document would likely get wrong.
+4. Make questions test DEEP UNDERSTANDING, not surface-level recall.
 
-IMPORTANT: Create questions that genuinely test knowledge. If someone blindly marks all as "correct" without reading, they should get many wrong because the questions require actual understanding.
+REQUIRED QUESTION TYPES (use ALL of these):
+- **Application Questions**: "How would you apply X principle in [specific scenario not mentioned in question]?"
+- **Analysis Questions**: "What are the potential consequences if X is not followed?" or "Why might X lead to Y outcome?"
+- **Comparison Questions**: "What distinguishes X from Y in terms of [specific aspect]?" (where the distinction isn't obvious)
+- **Scenario-Based Questions**: "In situation [specific scenario], what would be the appropriate action based on X?"
+- **Critical Thinking Questions**: "What would happen if [opposite of what document says]?" or "Why is X important for Y?"
+- **Interpretation Questions**: "What does the document suggest about [implicit concept]?"
+- **Synthesis Questions**: "How do concepts X and Y relate to each other in this context?"
+
+ANTI-GUESSING STRATEGIES:
+- Create questions where the answer requires understanding the CONTEXT and IMPLICATIONS
+- Include questions about EXCEPTIONS, EDGE CASES, or SPECIAL CIRCUMSTANCES
+- Ask about RELATIONSHIPS and CONNECTIONS between concepts
+- Test UNDERSTANDING OF PRINCIPLES, not just facts
+- Include questions about WHY and HOW, not just WHAT
+- Make questions that require INTERPRETATION and ANALYSIS
+
+AVOID:
+- Questions where the answer is obvious from the question text
+- Simple definition questions where the term is in the question
+- Questions that can be answered by common sense alone
+- Questions where the answer is embedded in the question itself
+
+${difficultyInstructions[difficulty]}
 
 Return ONLY a valid JSON object with a "flashcards" array. Each flashcard should have this structure:
 {
   "flashcards": [
     {
-      "question": "The question text (should test understanding, not obvious recall)",
+      "question": "The question text (MUST require actual knowledge, not obvious)",
       "answer": "The answer text",
-      "category": "Category name (e.g., 'Application', 'Analysis', 'Concepts', 'Processes', 'Definitions', 'Scenarios')",
+      "category": "Category name (e.g., 'Application', 'Analysis', 'Critical Thinking', 'Synthesis', 'Scenarios')",
       "difficulty": "${difficulty}"
     }
   ]
@@ -75,18 +88,24 @@ Return ONLY a valid JSON object with a "flashcards" array. Each flashcard should
 
     const userMessage = `Generate exactly ${count} flashcards from the following educational content. 
 
-REQUIREMENTS:
-- Create DIVERSE question types (application, analysis, comparison, scenarios, cause-effect, concepts)
-- Make questions CHALLENGING - they should test understanding, not just memory
-- Ensure questions require actual knowledge - not obvious from the question itself
-- Include questions that connect multiple concepts
-- Mix different cognitive levels (understanding, application, analysis)
-- Cover different aspects of the content
+STRICT REQUIREMENTS:
+1. Questions MUST require actual knowledge from the document - answers should NOT be obvious
+2. If someone blindly guesses "correct" on all questions without reading, they should get MANY WRONG
+3. Create questions that test DEEP UNDERSTANDING, not surface recall
+4. Include questions about:
+   - Implications and consequences
+   - Relationships between concepts
+   - Application in different contexts
+   - Exceptions and edge cases
+   - Why and how things work (not just what)
+5. Mix question types: application, analysis, critical thinking, synthesis, scenarios
+6. Each question should require INTERPRETING the content, not just recalling it
 
 Content:
 ${truncatedText}
 
-Return a JSON object with a "flashcards" array containing exactly ${count} flashcards. Each question should genuinely test understanding.`;
+Return a JSON object with a "flashcards" array containing exactly ${count} flashcards. 
+CRITICAL: Make questions where the answer is NOT obvious - they must require actual understanding of the document content.`;
 
     console.log('   🤖 Calling OpenAI to generate flashcards...');
     const startTime = Date.now();
