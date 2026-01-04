@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "verify-qdrant": "node src/scripts/verify-qdrant.js"
   },
   "keywords": [
     "education",
@@ -20,6 +21,7 @@
   "dependencies": {
     "@langchain/core": "^1.1.8",
     "@langchain/openai": "^1.2.0",
+    "@qdrant/js-client-rest": "^1.16.2",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
