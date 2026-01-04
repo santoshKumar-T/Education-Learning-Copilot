@@ -3,7 +3,7 @@
  * Handles chatbot API calls through middleware
  */
 
-import { api } from '../../../middleware/frontend/api/index.js';
+import { api } from '../../../../middleware/frontend/api/index.js';
 
 /**
  * Create a new chat session

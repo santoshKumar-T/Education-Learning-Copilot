@@ -3,7 +3,7 @@
  * Handles quiz generation and validation API calls through middleware
  */
 
-import { api } from '../../../middleware/frontend/api/index.js';
+import { api } from '../../../../middleware/frontend/api/index.js';
 
 /**
  * Generate quiz from topic

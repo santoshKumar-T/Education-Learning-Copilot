@@ -3,7 +3,7 @@
  * Handles authentication API calls through middleware
  */
 
-import { api, setAuthToken, setStoredUser, removeAuthToken, getStoredUser, isAuthenticated } from '../../../middleware/frontend/api/index.js';
+import { api, setAuthToken, setStoredUser, removeAuthToken, getStoredUser, isAuthenticated } from '../../../../middleware/frontend/api/index.js';
 
 /**
  * Register a new user

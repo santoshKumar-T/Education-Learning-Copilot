@@ -4,5 +4,5 @@
  */
 
 // Re-export from root middleware folder
-export * from '../../../middleware/frontend/api/index.js';
+export * from '../../../../middleware/frontend/api/index.js';
 

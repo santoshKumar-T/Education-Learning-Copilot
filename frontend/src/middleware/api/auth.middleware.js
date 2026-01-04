@@ -4,7 +4,7 @@
  */
 
 // Re-export from root middleware
-export * from '../../../middleware/frontend/api/auth.middleware.js';
+export * from '../../../../middleware/frontend/api/auth.middleware.js';
 
 /**
  * Get authentication token from storage
