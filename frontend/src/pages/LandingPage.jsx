@@ -179,11 +179,11 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
               </p>
             </div>
             <div className="feature-card hover-lift animate-fade-in-up animate-delay-500">
-              <div className="feature-icon animate-float">🎓</div>
-              <h3 className="feature-title">Learning Paths</h3>
+              <div className="feature-icon animate-float">💬</div>
+              <h3 className="feature-title">AI Chat Assistant</h3>
               <p className="feature-description">
-                Customized learning paths that guide you from beginner to expert. 
-                Optimized sequences for maximum retention.
+                Intelligent conversational AI that answers questions, explains concepts, 
+                and provides personalized learning support 24/7.
               </p>
             </div>
           </div>
