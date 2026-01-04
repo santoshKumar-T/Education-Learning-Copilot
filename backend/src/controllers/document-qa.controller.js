@@ -67,12 +67,12 @@ export const askQuestion = async (req, res) => {
     );
 
     res.json({
-      success: result.success,
-      answer: result.answer,
-      sources: result.sources,
-      confidence: result.confidence,
-      model: result.model,
-      usage: result.usage,
+      success: qaResult.success,
+      answer: qaResult.answer,
+      sources: qaResult.sources,
+      confidence: qaResult.confidence,
+      model: qaResult.model,
+      usage: qaResult.usage,
       document: {
         id: document._id,
         name: document.originalName
@@ -113,12 +113,12 @@ export const searchDocumentContent = async (req, res) => {
     }
 
     // Get document (through database middleware)
-    const result = await dbQuery(async () => {
+    const dbResult = await dbQuery(async () => {
       return await Document.findOne({ _id: documentId, userId })
         .select('originalName status');
     }, { operationName: 'Get Document for Search' });
 
-    const document = result.data;
+    const document = dbResult.data;
 
     if (!document) {
       return res.status(404).json({
