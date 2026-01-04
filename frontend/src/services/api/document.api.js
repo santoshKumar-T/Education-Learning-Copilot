@@ -5,8 +5,6 @@
 
 import { api } from '../../../../middleware/frontend/api/index.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
 /**
  * Upload a document
  * @param {File} file - File to upload
@@ -17,7 +15,8 @@ export const uploadDocument = async (file) => {
   formData.append('document', file);
 
   // Don't set Content-Type header - browser will set it automatically with boundary for FormData
-  return api.post(`${API_BASE_URL}/api/documents/upload`, formData);
+  // Use relative path - middleware will add base URL
+  return api.post('/api/documents/upload', formData);
 };
 
 /**
@@ -25,7 +24,8 @@ export const uploadDocument = async (file) => {
  * @returns {Promise} List of documents
  */
 export const getDocuments = async () => {
-  return api.get(`${API_BASE_URL}/api/documents`);
+  // Use relative path - middleware will add base URL
+  return api.get('/api/documents');
 };
 
 /**
@@ -34,7 +34,8 @@ export const getDocuments = async () => {
  * @returns {Promise} Document details
  */
 export const getDocument = async (documentId) => {
-  return api.get(`${API_BASE_URL}/api/documents/${documentId}`);
+  // Use relative path - middleware will add base URL
+  return api.get(`/api/documents/${documentId}`);
 };
 
 /**
@@ -43,7 +44,8 @@ export const getDocument = async (documentId) => {
  * @returns {Promise} Delete response
  */
 export const deleteDocument = async (documentId) => {
-  return api.delete(`${API_BASE_URL}/api/documents/${documentId}`);
+  // Use relative path - middleware will add base URL
+  return api.delete(`/api/documents/${documentId}`);
 };
 
 /**
@@ -54,7 +56,8 @@ export const deleteDocument = async (documentId) => {
  * @returns {Promise<Object>} Answer with sources
  */
 export const askDocumentQuestion = async (documentId, question, topK = 5) => {
-  return api.post(`${API_BASE_URL}/api/documents/${documentId}/qa`, {
+  // Use relative path - middleware will add base URL
+  return api.post(`/api/documents/${documentId}/qa`, {
     question,
     topK
   });
@@ -68,7 +71,8 @@ export const askDocumentQuestion = async (documentId, question, topK = 5) => {
  * @returns {Promise<Object>} Search results
  */
 export const searchDocumentContent = async (documentId, query, topK = 10) => {
-  return api.post(`${API_BASE_URL}/api/documents/${documentId}/search`, {
+  // Use relative path - middleware will add base URL
+  return api.post(`/api/documents/${documentId}/search`, {
     query,
     topK
   });
@@ -84,7 +88,8 @@ export const searchDocumentContent = async (documentId, query, topK = 10) => {
  * @returns {Promise<Object>} Flashcards response
  */
 export const generateFlashcards = async (documentId, count = 10, difficulty = 'medium', useSummary = false, summaryLevel = 'detailed') => {
-  return api.post(`${API_BASE_URL}/api/documents/${documentId}/flashcards`, {
+  // Use relative path - middleware will add base URL
+  return api.post(`/api/documents/${documentId}/flashcards`, {
     count,
     difficulty,
     useSummary,
