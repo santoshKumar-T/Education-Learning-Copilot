@@ -14,10 +14,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware - CORS configuration
+// Normalize FRONTEND_URL to remove trailing slash for exact match
+const getFrontendOrigin = () => {
+  const url = process.env.FRONTEND_URL || 'http://localhost:3000';
+  return url.replace(/\/+$/, ''); // Remove trailing slashes
+};
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: getFrontendOrigin(),
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 app.use(express.json());
