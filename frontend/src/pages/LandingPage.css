@@ -58,6 +58,24 @@
   gap: 1rem;
 }
 
+.btn-link-nav {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-link-nav:hover {
+  color: var(--primary-color);
+  background: rgba(102, 126, 234, 0.1);
+}
+
 .user-name {
   color: var(--text-secondary);
   font-weight: 500;

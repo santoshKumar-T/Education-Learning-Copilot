@@ -1,7 +1,7 @@
 import React from 'react'
 import './LandingPage.css'
 
-const LandingPage = ({ user, onLogin, onLogout }) => {
+const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
   return (
     <div className="landing-page">
       {/* Navigation */}
@@ -18,6 +18,18 @@ const LandingPage = ({ user, onLogin, onLogout }) => {
               <a href="#integrations">Integrations</a>
               {user ? (
                 <div className="user-menu">
+                  <button 
+                    className="btn-link-nav" 
+                    onClick={() => onNavigate && onNavigate('dashboard')}
+                  >
+                    Dashboard
+                  </button>
+                  <button 
+                    className="btn-link-nav" 
+                    onClick={() => onNavigate && onNavigate('settings')}
+                  >
+                    Settings
+                  </button>
                   <span className="user-name">👤 {user.name || user.email}</span>
                   <button className="btn-secondary" onClick={onLogout}>Logout</button>
                 </div>
