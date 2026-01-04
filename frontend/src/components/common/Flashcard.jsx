@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './Flashcard.css';
 
-const Flashcard = ({ card, onFlip, isFlipped, onMarkCorrect, onMarkIncorrect, showActions = true }) => {
+const Flashcard = ({ card, onFlip, isFlipped, onMarkCorrect, onMarkIncorrect, showActions = true, isAnswered = false }) => {
   return (
-    <div className={`flashcard ${isFlipped ? 'flipped' : ''}`} onClick={onFlip}>
+    <div className={`flashcard ${isFlipped ? 'flipped' : ''} ${isAnswered ? 'answered' : ''}`} onClick={onFlip}>
       <div className="flashcard-inner">
         <div className="flashcard-front">
           <div className="flashcard-header">
@@ -31,24 +31,38 @@ const Flashcard = ({ card, onFlip, isFlipped, onMarkCorrect, onMarkIncorrect, sh
           </div>
           {showActions && (
             <div className="flashcard-actions" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="btn-mark-incorrect"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMarkIncorrect && onMarkIncorrect();
-                }}
-              >
-                ❌ Incorrect
-              </button>
-              <button
-                className="btn-mark-correct"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMarkCorrect && onMarkCorrect();
-                }}
-              >
-                ✅ Correct
-              </button>
+              {isAnswered ? (
+                <div className="flashcard-answered-message">
+                  ✓ Answer recorded
+                </div>
+              ) : (
+                <>
+                  <button
+                    className="btn-mark-incorrect"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isAnswered && onMarkIncorrect) {
+                        onMarkIncorrect();
+                      }
+                    }}
+                    disabled={isAnswered}
+                  >
+                    ❌ Incorrect
+                  </button>
+                  <button
+                    className="btn-mark-correct"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isAnswered && onMarkCorrect) {
+                        onMarkCorrect();
+                      }
+                    }}
+                    disabled={isAnswered}
+                  >
+                    ✅ Correct
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

@@ -28,6 +28,7 @@ const DocumentAssistant = ({ user }) => {
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
   const [flashcardFlipped, setFlashcardFlipped] = useState(false);
   const [flashcardStats, setFlashcardStats] = useState({ correct: 0, incorrect: 0 });
+  const [answeredCards, setAnsweredCards] = useState(new Set());
   const fileInputRef = useRef(null);
   const questionInputRef = useRef(null);
 
@@ -276,6 +277,7 @@ const DocumentAssistant = ({ user }) => {
         setCurrentFlashcardIndex(0);
         setFlashcardFlipped(false);
         setFlashcardStats({ correct: 0, incorrect: 0 });
+        setAnsweredCards(new Set());
       } else {
         setFlashcardError('Failed to generate flashcards. Please try again.');
       }
@@ -306,21 +308,47 @@ const DocumentAssistant = ({ user }) => {
   };
 
   const handleMarkCorrect = () => {
+    const currentCardId = flashcards[currentFlashcardIndex]?.id;
+    
+    // Prevent multiple clicks on the same card
+    if (!currentCardId || answeredCards.has(currentCardId)) {
+      return;
+    }
+
+    // Mark card as answered
+    setAnsweredCards(prev => new Set([...prev, currentCardId]));
+    
+    // Update stats
     setFlashcardStats(prev => ({ ...prev, correct: prev.correct + 1 }));
+    
+    // Move to next card after a short delay
     setTimeout(() => {
       if (currentFlashcardIndex < flashcards.length - 1) {
         handleFlashcardNext();
       }
-    }, 500);
+    }, 800);
   };
 
   const handleMarkIncorrect = () => {
+    const currentCardId = flashcards[currentFlashcardIndex]?.id;
+    
+    // Prevent multiple clicks on the same card
+    if (!currentCardId || answeredCards.has(currentCardId)) {
+      return;
+    }
+
+    // Mark card as answered
+    setAnsweredCards(prev => new Set([...prev, currentCardId]));
+    
+    // Update stats
     setFlashcardStats(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+    
+    // Move to next card after a short delay
     setTimeout(() => {
       if (currentFlashcardIndex < flashcards.length - 1) {
         handleFlashcardNext();
       }
-    }, 500);
+    }, 800);
   };
 
   const getStatusBadge = (status) => {
@@ -643,6 +671,7 @@ const DocumentAssistant = ({ user }) => {
                           onFlip={handleFlashcardFlip}
                           onMarkCorrect={handleMarkCorrect}
                           onMarkIncorrect={handleMarkIncorrect}
+                          isAnswered={answeredCards.has(flashcards[currentFlashcardIndex]?.id)}
                         />
 
                         <div className="flashcard-controls">
@@ -673,10 +702,11 @@ const DocumentAssistant = ({ user }) => {
                         <button
                           className="btn-reset-flashcards"
                           onClick={() => {
-                            setFlashcards([]);
-                            setCurrentFlashcardIndex(0);
-                            setFlashcardFlipped(false);
-                            setFlashcardStats({ correct: 0, incorrect: 0 });
+      setFlashcards([]);
+        setCurrentFlashcardIndex(0);
+        setFlashcardFlipped(false);
+        setFlashcardStats({ correct: 0, incorrect: 0 });
+        setAnsweredCards(new Set());
                           }}
                         >
                           Generate New Set
