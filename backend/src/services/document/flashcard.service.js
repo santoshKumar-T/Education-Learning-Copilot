@@ -63,7 +63,7 @@ Return ONLY a valid JSON array of flashcards, no other text. Each flashcard shou
 
 ${truncatedText}
 
-Return a JSON array with exactly ${count} flashcards.`;
+Return a JSON object with a "flashcards" array containing exactly ${count} flashcards.`;
 
     console.log('   🤖 Calling OpenAI to generate flashcards...');
     const startTime = Date.now();
@@ -75,7 +75,7 @@ Return a JSON array with exactly ${count} flashcards.`;
         { role: 'user', content: userMessage }
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 3000,
       response_format: { type: 'json_object' }
     });
 
