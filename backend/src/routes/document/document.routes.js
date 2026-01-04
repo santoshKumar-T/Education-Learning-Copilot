@@ -11,6 +11,7 @@ import {
   deleteDocument
 } from '../../controllers/document.controller.js';
 import { serveAudioFile } from '../../controllers/tts.controller.js';
+import { askQuestion, searchDocumentContent } from '../../controllers/document-qa.controller.js';
 import { authenticate } from '../../middleware/auth/auth.middleware.js';
 import { uploadSingle } from '../../middleware/upload.middleware.js';
 
@@ -42,6 +43,13 @@ router.get('/:id', getDocument);
 
 // Delete document
 router.delete('/:id', deleteDocument);
+
+// Q&A routes (require authentication)
+// Answer question about document
+router.post('/:id/qa', askQuestion);
+
+// Search document content
+router.post('/:id/search', searchDocumentContent);
 
 export default router;
 

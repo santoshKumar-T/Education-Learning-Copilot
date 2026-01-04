@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { uploadDocument, getDocuments, deleteDocument } from '../services/api/document.api.js';
+import { uploadDocument, getDocuments, deleteDocument, askDocumentQuestion } from '../services/api/document.api.js';
 import { generateDocumentSummaryAudio, getAudioUrl } from '../services/api/tts.api.js';
 import AudioPlayer from '../components/common/AudioPlayer.jsx';
 import './DocumentAssistant.css';
@@ -16,7 +16,13 @@ const DocumentAssistant = ({ user }) => {
   const [generatingAudio, setGeneratingAudio] = useState(false);
   const [voice, setVoice] = useState('alloy');
   const [speed, setSpeed] = useState(1.0);
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState(null);
+  const [sources, setSources] = useState([]);
+  const [askingQuestion, setAskingQuestion] = useState(false);
+  const [qaError, setQaError] = useState(null);
   const fileInputRef = useRef(null);
+  const questionInputRef = useRef(null);
 
   useEffect(() => {
     if (user) {
@@ -178,6 +184,54 @@ const DocumentAssistant = ({ user }) => {
     // Clear audio when summary level changes
     setAudioUrl(null);
     setAudioFilename(null);
+  };
+
+  const handleAskQuestion = async (e) => {
+    e.preventDefault();
+    
+    if (!question.trim() || !selectedDocument) {
+      return;
+    }
+
+    if (selectedDocument.status !== 'completed') {
+      alert('Please wait for the document to finish processing before asking questions.');
+      return;
+    }
+
+    try {
+      setAskingQuestion(true);
+      setQaError(null);
+      setAnswer(null);
+      setSources([]);
+
+      const response = await askDocumentQuestion(selectedDocument.id, question.trim());
+      
+      const success = (response.data && response.data.success) || response.success;
+      if (success) {
+        const data = response.data || response;
+        setAnswer({
+          text: data.answer,
+          confidence: data.confidence,
+          model: data.model,
+          usage: data.usage
+        });
+        setSources(data.sources || []);
+      } else {
+        setQaError('Failed to get answer. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error asking question:', error);
+      setQaError(error.message || 'Failed to get answer. Please try again.');
+    } finally {
+      setAskingQuestion(false);
+    }
+  };
+
+  const handleClearQa = () => {
+    setQuestion('');
+    setAnswer(null);
+    setSources([]);
+    setQaError(null);
   };
 
   const getStatusBadge = (status) => {
@@ -418,6 +472,75 @@ const DocumentAssistant = ({ user }) => {
                       </div>
                     </div>
                   )}
+
+                  {/* Q&A Section */}
+                  <div className="qa-section">
+                    <h3>💬 Ask Questions About This Document</h3>
+                    <p className="qa-description">Ask any question about the document content and get AI-powered answers based on the document.</p>
+                    
+                    <form onSubmit={handleAskQuestion} className="qa-form">
+                      <div className="qa-input-group">
+                        <input
+                          ref={questionInputRef}
+                          type="text"
+                          value={question}
+                          onChange={(e) => setQuestion(e.target.value)}
+                          placeholder="e.g., What are the main topics covered? What is GDPR?"
+                          className="qa-input"
+                          disabled={askingQuestion}
+                        />
+                        <button
+                          type="submit"
+                          className="btn-ask"
+                          disabled={askingQuestion || !question.trim()}
+                        >
+                          {askingQuestion ? '⏳ Asking...' : '❓ Ask'}
+                        </button>
+                      </div>
+                    </form>
+
+                    {qaError && (
+                      <div className="qa-error">
+                        <p>❌ {qaError}</p>
+                      </div>
+                    )}
+
+                    {answer && (
+                      <div className="qa-answer">
+                        <div className="answer-header">
+                          <h4>Answer</h4>
+                          {answer.confidence && (
+                            <span className="confidence-badge">
+                              Confidence: {(answer.confidence * 100).toFixed(1)}%
+                            </span>
+                          )}
+                          <button className="btn-clear-qa" onClick={handleClearQa}>Clear</button>
+                        </div>
+                        <div className="answer-content">
+                          {answer.text.split('\n').map((paragraph, idx) => (
+                            <p key={idx}>{paragraph}</p>
+                          ))}
+                        </div>
+                        
+                        {sources && sources.length > 0 && (
+                          <div className="qa-sources">
+                            <h5>📚 Sources ({sources.length})</h5>
+                            <div className="sources-list">
+                              {sources.map((source, idx) => (
+                                <div key={idx} className="source-item">
+                                  <div className="source-header">
+                                    <span className="source-rank">#{idx + 1}</span>
+                                    <span className="source-score">Relevance: {(source.score * 100).toFixed(1)}%</span>
+                                  </div>
+                                  <p className="source-text">{source.text}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Metadata */}
                   {selectedDocument.metadata && (

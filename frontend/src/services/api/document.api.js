@@ -46,3 +46,31 @@ export const deleteDocument = async (documentId) => {
   return api.delete(`${API_BASE_URL}/api/documents/${documentId}`);
 };
 
+/**
+ * Ask a question about a document (RAG-based Q&A)
+ * @param {string} documentId - Document ID
+ * @param {string} question - User's question
+ * @param {number} topK - Number of relevant chunks to retrieve (default: 5)
+ * @returns {Promise<Object>} Answer with sources
+ */
+export const askDocumentQuestion = async (documentId, question, topK = 5) => {
+  return api.post(`${API_BASE_URL}/api/documents/${documentId}/qa`, {
+    question,
+    topK
+  });
+};
+
+/**
+ * Search document content
+ * @param {string} documentId - Document ID
+ * @param {string} query - Search query
+ * @param {number} topK - Number of results (default: 10)
+ * @returns {Promise<Object>} Search results
+ */
+export const searchDocumentContent = async (documentId, query, topK = 10) => {
+  return api.post(`${API_BASE_URL}/api/documents/${documentId}/search`, {
+    query,
+    topK
+  });
+};
+
