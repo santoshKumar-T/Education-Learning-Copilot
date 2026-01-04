@@ -38,13 +38,19 @@ const DocumentAssistant = ({ user }) => {
     }
   }, [user]);
 
-  // Clear Q&A state when selected document changes
+  // Clear Q&A and flashcard state when selected document changes
   useEffect(() => {
     if (selectedDocument) {
       setQuestion('');
       setAnswer(null);
       setSources([]);
       setQaError(null);
+      setFlashcards([]);
+      setFlashcardError(null);
+      setCurrentFlashcardIndex(0);
+      setFlashcardFlipped(false);
+      setFlashcardStats({ correct: 0, incorrect: 0 });
+      setAnsweredCards(new Set());
     }
   }, [selectedDocument?.id]);
 
