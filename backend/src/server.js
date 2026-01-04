@@ -8,6 +8,9 @@ import authRoutes from './routes/auth/auth.routes.js';
 import quizRoutes from './routes/quiz/quiz.routes.js';
 import { initializeLangChain } from './services/langchain/langchain-simple.service.js';
 import { connectDatabase } from './config/database.js';
+import { requestLogger, errorLogger, performanceLogger } from './middleware/logging/index.js';
+import { rateLimiter } from './middleware/rate-limiting/index.js';
+import { healthCheck, detailedHealthCheck } from './middleware/monitoring/index.js';
 
 // Load environment variables
 dotenv.config();
@@ -32,14 +35,19 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
+// Middleware: Request logging (through middleware)
+app.use(requestLogger);
+
+// Middleware: Performance tracking (through middleware)
+app.use(performanceLogger);
+
+// Middleware: Rate limiting (through middleware)
+// Apply to all routes except health checks
 app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`\n🌐 [${timestamp}] ${req.method} ${req.path}`);
-  if (req.body && Object.keys(req.body).length > 0 && !req.path.includes('/chatbot/message')) {
-    console.log(`   Body:`, JSON.stringify(req.body).substring(0, 100));
+  if (req.path === '/health' || req.path === '/') {
+    return next(); // Skip rate limiting for health checks
   }
-  next();
+  rateLimiter(req, res, next);
 });
 
 // Routes
@@ -50,6 +58,10 @@ app.get('/', (req, res) => {
     status: 'running',
   });
 });
+
+// Health check routes (using monitoring middleware)
+app.get('/health', healthCheck);
+app.get('/health/detailed', detailedHealthCheck);
 
 // Chatbot routes
 app.use('/api/chatbot', chatbotRoutes);
@@ -66,17 +78,9 @@ app.use('/api/auth', authRoutes);
 // Quiz routes
 app.use('/api/quiz', quizRoutes);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Error handling middleware
+// Error handling middleware (using logging middleware)
+app.use(errorLogger);
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
   res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Internal server error',

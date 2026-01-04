@@ -71,6 +71,12 @@ const response = await api.post('/api/endpoint', data);
 - `routes/session/session.routes.js` - Session endpoints
 - `routes/quiz/quiz.routes.js` - Quiz endpoints
 
+**All routes go through middleware:**
+- Request logging middleware
+- Performance tracking middleware
+- Rate limiting middleware
+- Error logging middleware
+
 ### 2. Controllers Layer
 - `controllers/auth.controller.js` - Auth request handling
 - `controllers/chatbot.controller.js` - Chatbot request handling
@@ -131,20 +137,30 @@ const result = await dbWrite(async () => {
    - Add headers
    - Skip auth (registration is public)
    ↓ HTTP POST to backend
-4. Backend Route (auth.routes.js)
+4. Backend Request Logger Middleware
+   - Log request details
    ↓
-5. Backend Controller (auth.controller.js)
+5. Backend Performance Logger Middleware
+   - Track request duration
+   ↓
+6. Backend Rate Limiter Middleware
+   - Check rate limits
+   ↓
+7. Backend Route (auth.routes.js)
+   ↓
+8. Backend Controller (auth.controller.js)
    ↓ registerUser(email, password, name)
-6. Backend Service (auth.service.mongodb.js)
+9. Backend Service (auth.service.mongodb.js)
    ↓ dbWrite(async () => { ... })
-7. Database Middleware (database.middleware.js)
-   - Check connection
-   - Log operation
-   - Handle errors
-   ↓
-8. MongoDB Database
-   ↓
-9. Response flows back through all layers
+10. Database Middleware (database.middleware.js)
+    - Check connection
+    - Log operation
+    - Handle errors
+    ↓
+11. MongoDB Database
+    ↓
+12. Response flows back through all layers
+13. Error Logger Middleware (if error occurs)
 ```
 
 ## Key Principles
@@ -189,9 +205,21 @@ frontend/src/
 
 backend/src/
 ├── middleware/
-│   ├── api/                       ← (Future: API-level middleware)
-│   └── database/
-│       ├── database.middleware.js ← Backend DB middleware
+│   ├── auth/
+│   │   └── auth.middleware.js     ← JWT authentication middleware
+│   ├── database/
+│   │   ├── database.middleware.js ← Backend DB middleware
+│   │   └── index.js               ← Exports
+│   ├── logging/
+│   │   ├── request-logger.middleware.js    ← Request logging
+│   │   ├── error-logger.middleware.js      ← Error logging
+│   │   ├── performance-logger.middleware.js ← Performance tracking
+│   │   └── index.js               ← Exports
+│   ├── rate-limiting/
+│   │   ├── rate-limiter.middleware.js ← Rate limiting
+│   │   └── index.js               ← Exports
+│   └── monitoring/
+│       ├── health-check.middleware.js ← Health checks
 │       └── index.js               ← Exports
 ├── services/
 │   ├── auth/
