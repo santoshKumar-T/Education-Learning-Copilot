@@ -74,3 +74,4 @@ router.delete('/:sessionId', deleteSessionById);
  */
 router.get('/:sessionId', getSessionDetails);
 
+export default router;
