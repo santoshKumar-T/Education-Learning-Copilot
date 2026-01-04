@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './LandingPage.css'
+import { FloatingParticles, DecorativeCircles, EducationIllustration } from '../components/common/Graphics'
+import { useScrollReveal } from '../hooks/useScrollReveal'
 
 const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
   return (
@@ -43,8 +45,11 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
 
       {/* Hero Section */}
       <section className="hero">
+        <FloatingParticles count={25} />
+        <DecorativeCircles />
+        <div className="bg-pattern" />
         <div className="container">
-          <div className="hero-content">
+          <div className="hero-content animate-fade-in-up">
             <h1 className="hero-title">
               Your Personal <span className="gradient-text">Learning Companion</span>
             </h1>
@@ -57,15 +62,15 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
               <button className="btn-secondary btn-large">Watch Demo</button>
             </div>
             <div className="hero-stats">
-              <div className="stat">
+              <div className="stat animate-fade-in-up animate-delay-200">
                 <div className="stat-number">10K+</div>
                 <div className="stat-label">Active Learners</div>
               </div>
-              <div className="stat">
+              <div className="stat animate-fade-in-up animate-delay-300">
                 <div className="stat-number">50K+</div>
                 <div className="stat-label">Quizzes Generated</div>
               </div>
-              <div className="stat">
+              <div className="stat animate-fade-in-up animate-delay-400">
                 <div className="stat-number">1M+</div>
                 <div className="stat-label">Lessons Created</div>
               </div>
@@ -84,48 +89,48 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
             </p>
           </div>
           <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">🎯</div>
+            <div className="feature-card hover-lift animate-fade-in-up">
+              <div className="feature-icon animate-float">🎯</div>
               <h3 className="feature-title">Personalized Learning</h3>
               <p className="feature-description">
                 Adaptive learning paths that adjust to your pace, style, and performance. 
                 Get content recommendations tailored just for you.
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">❓</div>
+            <div className="feature-card hover-lift animate-fade-in-up animate-delay-100">
+              <div className="feature-icon animate-float animate-delay-200">❓</div>
               <h3 className="feature-title">Quiz Generation</h3>
               <p className="feature-description">
                 AI-powered quiz creation from your course materials. Generate comprehensive 
                 assessments instantly to test your understanding.
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">📋</div>
+            <div className="feature-card hover-lift animate-fade-in-up animate-delay-200">
+              <div className="feature-icon animate-float animate-delay-300">📋</div>
               <h3 className="feature-title">Lesson Plans</h3>
               <p className="feature-description">
                 Intelligent lesson planning that structures your learning journey. 
                 Break down complex topics into manageable, sequential lessons.
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">🧠</div>
+            <div className="feature-card hover-lift animate-fade-in-up animate-delay-300">
+              <div className="feature-icon animate-float animate-delay-400">🧠</div>
               <h3 className="feature-title">RAG Technology</h3>
               <p className="feature-description">
                 Retrieval-Augmented Generation for course content, slides, and notes. 
                 Access relevant information instantly from your learning materials.
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">📊</div>
+            <div className="feature-card hover-lift animate-fade-in-up animate-delay-400">
+              <div className="feature-icon animate-float animate-delay-500">📊</div>
               <h3 className="feature-title">Performance Tracking</h3>
               <p className="feature-description">
                 Monitor your progress with detailed analytics. Identify strengths 
                 and areas that need improvement.
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">🎓</div>
+            <div className="feature-card hover-lift animate-fade-in-up animate-delay-500">
+              <div className="feature-icon animate-float">🎓</div>
               <h3 className="feature-title">Learning Paths</h3>
               <p className="feature-description">
                 Customized learning paths that guide you from beginner to expert. 
@@ -146,8 +151,8 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
             </p>
           </div>
           <div className="agents-grid">
-            <div className="agent-card">
-              <div className="agent-icon">🎲</div>
+            <div className="agent-card hover-lift animate-fade-in-up">
+              <div className="agent-icon animate-pulse">🎲</div>
               <h3 className="agent-title">Quiz Generator Agent</h3>
               <p className="agent-description">
                 Automatically creates comprehensive quizzes from your course materials. 
@@ -160,8 +165,8 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                 <li>Instant feedback</li>
               </ul>
             </div>
-            <div className="agent-card">
-              <div className="agent-icon">📚</div>
+            <div className="agent-card hover-lift animate-fade-in-up animate-delay-200">
+              <div className="agent-icon animate-pulse animate-delay-300">📚</div>
               <h3 className="agent-title">Lesson Planner Agent</h3>
               <p className="agent-description">
                 Designs structured lesson plans based on learning objectives. 
@@ -174,8 +179,8 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                 <li>Time estimation</li>
               </ul>
             </div>
-            <div className="agent-card">
-              <div className="agent-icon">🗺️</div>
+            <div className="agent-card hover-lift animate-fade-in-up animate-delay-400">
+              <div className="agent-icon animate-pulse animate-delay-500">🗺️</div>
               <h3 className="agent-title">Learning Path Agent</h3>
               <p className="agent-description">
                 Maps out personalized learning journeys. Analyzes your goals, 

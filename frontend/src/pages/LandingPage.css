@@ -162,6 +162,9 @@
   background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #fef3f2 100%);
   position: relative;
   overflow: hidden;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
 }
 
 .hero::before {
@@ -305,6 +308,7 @@
   transition: all var(--transition-slow);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .feature-card::before {
@@ -336,6 +340,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline-block;
+  filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.2));
 }
 
 .feature-title {
@@ -371,6 +377,7 @@
   transition: all var(--transition-slow);
   border: 2px solid transparent;
   position: relative;
+  backdrop-filter: blur(10px);
 }
 
 .agent-card::before {
@@ -403,6 +410,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline-block;
+  filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.3));
 }
 
 .agent-title {
