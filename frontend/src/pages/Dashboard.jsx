@@ -238,19 +238,19 @@ const Dashboard = ({ user, onLogout, onNavigate }) => {
             </button>
             <button 
               className="action-card"
+              onClick={() => onNavigate ? onNavigate('quiz') : window.location.href = '/quiz'}
+            >
+              <div className="action-icon">🎲</div>
+              <h3>Quiz Generator</h3>
+              <p>Generate AI-powered quizzes</p>
+            </button>
+            <button 
+              className="action-card"
               onClick={() => onNavigate ? onNavigate('settings') : window.location.href = '/settings'}
             >
               <div className="action-icon">⚙️</div>
               <h3>Settings</h3>
               <p>Manage your preferences</p>
-            </button>
-            <button 
-              className="action-card"
-              onClick={() => onNavigate ? onNavigate('home') : window.location.href = '/'}
-            >
-              <div className="action-icon">📚</div>
-              <h3>View All Sessions</h3>
-              <p>See your learning history</p>
             </button>
           </div>
         </div>

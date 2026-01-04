@@ -29,6 +29,12 @@ const LandingPage = ({ user, onLogin, onLogout, onNavigate }) => {
                   </button>
                   <button 
                     className="btn-link-nav" 
+                    onClick={() => onNavigate && onNavigate('quiz')}
+                  >
+                    Quiz Generator
+                  </button>
+                  <button 
+                    className="btn-link-nav" 
                     onClick={() => onNavigate && onNavigate('settings')}
                   >
                     Settings

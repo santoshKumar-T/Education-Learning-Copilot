@@ -5,6 +5,7 @@ import chatbotRoutes from './routes/chatbot/chatbot.routes.js';
 import sessionRoutes from './routes/session/session.routes.js';
 import langchainRoutes from './routes/langchain/langchain.routes.js';
 import authRoutes from './routes/auth/auth.routes.js';
+import quizRoutes from './routes/quiz/quiz.routes.js';
 import { initializeLangChain } from './services/langchain/langchain-simple.service.js';
 import { connectDatabase } from './config/database.js';
 
@@ -61,6 +62,9 @@ app.use('/api/langchain', langchainRoutes);
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Quiz routes
+app.use('/api/quiz', quizRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

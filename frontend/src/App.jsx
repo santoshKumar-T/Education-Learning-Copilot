@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
+import QuizGenerator from './pages/QuizGenerator'
 import Chatbot from './components/common/Chatbot'
 import AuthModal from './components/auth/AuthModal'
 import { isAuthenticated, getStoredUser, logout } from './services/api/auth.api'
@@ -27,6 +28,8 @@ function App() {
       setCurrentPage('dashboard')
     } else if (path === '/settings') {
       setCurrentPage('settings')
+    } else if (path === '/quiz') {
+      setCurrentPage('quiz')
     } else {
       setCurrentPage('home')
     }
@@ -59,6 +62,8 @@ function App() {
         setCurrentPage('dashboard')
       } else if (path === '/settings') {
         setCurrentPage('settings')
+      } else if (path === '/quiz') {
+        setCurrentPage('quiz')
       } else {
         setCurrentPage('home')
       }
@@ -83,6 +88,9 @@ function App() {
       )}
       {currentPage === 'settings' && (
         <Settings user={user} onLogout={handleLogout} onNavigate={navigateTo} />
+      )}
+      {currentPage === 'quiz' && (
+        <QuizGenerator user={user} onNavigate={navigateTo} />
       )}
       {currentPage === 'home' && <Chatbot user={user} />}
       {showAuth && !user && (
