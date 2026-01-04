@@ -5,7 +5,9 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import pdfParse from 'pdf-parse';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 /**
  * Extract text from PDF file
@@ -15,8 +17,18 @@ import pdfParse from 'pdf-parse';
 export const extractTextFromPDF = async (filePath) => {
   try {
     const fileBuffer = await fs.readFile(filePath);
-    const data = await pdfParse(fileBuffer);
-    return data.text;
+    const pdfModule = require('pdf-parse');
+    
+    // pdf-parse exports PDFParse class
+    // Use the PDFParse class to parse the PDF
+    if (!pdfModule.PDFParse) {
+      throw new Error('PDFParse class not found in pdf-parse module');
+    }
+    
+    const parser = new pdfModule.PDFParse({ data: fileBuffer });
+    const textResult = await parser.getText();
+    
+    return textResult.text;
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
     throw new Error(`Failed to extract text from PDF: ${error.message}`);
@@ -82,4 +94,3 @@ export const cleanText = (text) => {
     // Trim
     .trim();
 };
-
