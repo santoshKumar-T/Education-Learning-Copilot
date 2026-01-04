@@ -83,6 +83,7 @@ const responseInterceptor = async (response, config) => {
     error.status = response.status;
     error.data = data;
     error.config = config;
+    error.response = clonedResponse;
     throw error;
   }
 
@@ -198,9 +199,9 @@ export const apiRequest = async (config) => {
 
     // Throw error with consistent format
     const apiError = new Error(errorResponse.error || error.message || 'An error occurred');
-    apiError.status = errorResponse.status;
-    apiError.data = errorResponse.data;
-    apiError.config = errorResponse.config;
+    apiError.status = errorResponse.status || error.status;
+    apiError.data = errorResponse.data || error.data;
+    apiError.config = errorResponse.config || config;
     throw apiError;
   }
 };
