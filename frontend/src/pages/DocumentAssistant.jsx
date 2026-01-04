@@ -21,7 +21,11 @@ const DocumentAssistant = ({ user }) => {
     try {
       setLoading(true);
       const response = await getDocuments();
-      if (response.success) {
+      // API middleware returns { data, status, ... } - check response.data
+      if (response.data && response.data.success) {
+        setDocuments(response.data.documents || []);
+      } else if (response.success) {
+        // Fallback for direct response
         setDocuments(response.documents || []);
       }
     } catch (error) {
@@ -53,12 +57,15 @@ const DocumentAssistant = ({ user }) => {
     try {
       setUploading(true);
       const response = await uploadDocument(file);
-      if (response.success) {
+      // API middleware returns { data, status, ... } - check response.data
+      const success = (response.data && response.data.success) || response.success;
+      if (success) {
         alert('Document uploaded successfully! Processing in background...');
-        // Reload documents after a short delay
+        // Reload documents immediately and then again after processing
+        loadDocuments();
         setTimeout(() => {
           loadDocuments();
-        }, 2000);
+        }, 3000);
       }
     } catch (error) {
       console.error('Error uploading document:', error);
