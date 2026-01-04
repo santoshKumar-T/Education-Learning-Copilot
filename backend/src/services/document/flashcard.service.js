@@ -87,12 +87,18 @@ Return ONLY a valid JSON object with a "flashcards" array. Each flashcard should
   "flashcards": [
     {
       "question": "The question text (MUST require actual knowledge, not obvious)",
-      "answer": "The answer text",
-      "category": "Category name (e.g., 'Application', 'Analysis', 'Critical Thinking', 'Synthesis', 'Scenarios')",
+      "answer": "CORRECT ANSWER: [the correct answer]\n\nWRONG ANSWERS (common mistakes):\n- [wrong answer 1 that sounds plausible]\n- [wrong answer 2 that could be confused]\n- [wrong answer 3 that is a common misconception]\n\nExplanation: [brief explanation of why the correct answer is right and why wrong answers are incorrect]",
+      "category": "Category name (e.g., 'Terminology', 'Application', 'Analysis', 'Critical Thinking', 'Synthesis', 'Scenarios')",
       "difficulty": "${difficulty}"
     }
   ]
-}`;
+}
+
+IMPORTANT: The answer field MUST include:
+1. The CORRECT ANSWER clearly labeled
+2. At least 2-3 WRONG ANSWERS that are plausible/common mistakes
+3. An explanation of why the correct answer is right and why wrong answers are wrong
+This format ensures users must actually read and understand to identify the correct answer.`;
 
     const userMessage = `Generate exactly ${count} flashcards from the following educational content. 
 
@@ -100,11 +106,21 @@ STRICT REQUIREMENTS:
 1. Questions MUST require actual knowledge from the document - answers should NOT be obvious
 2. If someone blindly guesses "correct" on all questions without reading, they should get MANY WRONG
 3. Create questions that test DEEP UNDERSTANDING, not surface recall
-4. **CRITICAL**: Include questions where there are plausible WRONG answers that sound correct:
-   - Questions about precise terminology (e.g., "What is DPO?" - correct: "Data Protection Officer", wrong: "Data Protection Order")
-   - Questions where similar-sounding terms could be confused
-   - Questions that test if user can distinguish between similar concepts
-   - Questions where common misconceptions would lead to wrong answers
+4. **CRITICAL**: For EACH flashcard answer, you MUST include:
+   - The CORRECT ANSWER clearly labeled
+   - At least 2-3 WRONG ANSWERS that are plausible/common mistakes
+   - An explanation of why correct is right and wrong answers are incorrect
+   
+   Example format:
+   "CORRECT ANSWER: Data Protection Officer
+   
+   WRONG ANSWERS (common mistakes):
+   - Data Protection Order (incorrect - this is not a real term)
+   - Data Privacy Officer (incorrect - DPO is specifically for protection, not just privacy)
+   - Data Processing Officer (incorrect - this is a different role)
+   
+   Explanation: DPO stands for Data Protection Officer, a mandatory role under GDPR. 'Data Protection Order' doesn't exist, 'Data Privacy Officer' is a common misconception, and 'Data Processing Officer' is a different role entirely."
+
 5. Include questions about:
    - Precise definitions and terminology (where wrong terms might sound similar)
    - Distinctions between similar concepts
@@ -121,12 +137,7 @@ Content:
 ${truncatedText}
 
 Return a JSON object with a "flashcards" array containing exactly ${count} flashcards. 
-CRITICAL: Make questions where:
-- The answer is NOT obvious from the question
-- There are plausible-sounding WRONG answers that could be confused
-- Precise terminology and distinctions are tested
-- Common misconceptions are addressed
-- Someone guessing would likely get wrong answers`;
+CRITICAL: Each answer MUST include correct answer + wrong answers + explanation. This ensures users must read and understand to identify the correct answer.`;
 
     console.log('   🤖 Calling OpenAI to generate flashcards...');
     const startTime = Date.now();
