@@ -205,9 +205,3 @@ export const dbBatch = async (operations, options = {}) => {
   
   return results;
 };
-
-/**
- * Export connection check utility
- */
-export { isMongoConnected };
-
