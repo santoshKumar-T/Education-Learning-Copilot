@@ -31,43 +31,62 @@ export const generateFlashcards = async (text, count = 10, difficulty = 'medium'
       : text;
 
     const difficultyInstructions = {
-      easy: 'Create simple, straightforward questions that test basic understanding and recall of facts.',
-      medium: 'Create questions that require understanding concepts and making connections between ideas.',
-      hard: 'Create challenging questions that require deep analysis, synthesis, and application of concepts.'
+      easy: 'Create questions that test basic recall and understanding. Include some questions where the answer might not be immediately obvious from the question alone.',
+      medium: 'Create questions that require understanding concepts, making connections, and applying knowledge. Mix in questions that test analysis and require deeper thinking.',
+      hard: 'Create challenging questions that require deep analysis, synthesis, application, and critical thinking. Include questions that test understanding of complex relationships and implications.'
     };
 
-    const systemPrompt = `You are an expert educational content creator specializing in creating effective flashcards for studying.
+    const systemPrompt = `You are an expert educational content creator specializing in creating effective, challenging flashcards for studying.
 
 Your task is to generate high-quality flashcards from educational content. Each flashcard should have:
 1. A clear, concise question on the front
 2. A comprehensive, accurate answer on the back
 3. Relevant context or explanation when helpful
 
-Guidelines:
-- Questions should be specific and test understanding, not just recall
+CRITICAL GUIDELINES:
+- Questions MUST test understanding, not just recall. Avoid questions where the answer is obvious from the question itself.
+- Create VARIETY in question types:
+  * Application questions: "How would you apply X in situation Y?"
+  * Analysis questions: "What are the implications of X?" or "Why does X lead to Y?"
+  * Comparison questions: "What is the difference between X and Y?"
+  * Scenario-based questions: "If X happens, what would be the result?"
+  * Cause-and-effect questions: "What causes X?" or "What happens when X occurs?"
+  * Conceptual questions: "What does X mean in the context of Y?"
+- Include questions where blindly guessing "correct" would be wrong - the answer should require actual knowledge
+- Make some questions require connecting multiple concepts from the document
+- Avoid questions that are too straightforward or where the answer is embedded in the question
 - Answers should be clear, accurate, and educational
 - Focus on key concepts, important facts, definitions, and relationships
-- Avoid trivial or overly obvious questions
-- Make questions progressively more challenging based on difficulty level
 - ${difficultyInstructions[difficulty]}
+
+IMPORTANT: Create questions that genuinely test knowledge. If someone blindly marks all as "correct" without reading, they should get many wrong because the questions require actual understanding.
 
 Return ONLY a valid JSON object with a "flashcards" array. Each flashcard should have this structure:
 {
   "flashcards": [
     {
-      "question": "The question text",
+      "question": "The question text (should test understanding, not obvious recall)",
       "answer": "The answer text",
-      "category": "Category name (e.g., 'Definitions', 'Concepts', 'Processes', 'Facts')",
+      "category": "Category name (e.g., 'Application', 'Analysis', 'Concepts', 'Processes', 'Definitions', 'Scenarios')",
       "difficulty": "${difficulty}"
     }
   ]
 }`;
 
-    const userMessage = `Generate exactly ${count} flashcards from the following educational content. Make them diverse, covering different aspects of the content:
+    const userMessage = `Generate exactly ${count} flashcards from the following educational content. 
 
+REQUIREMENTS:
+- Create DIVERSE question types (application, analysis, comparison, scenarios, cause-effect, concepts)
+- Make questions CHALLENGING - they should test understanding, not just memory
+- Ensure questions require actual knowledge - not obvious from the question itself
+- Include questions that connect multiple concepts
+- Mix different cognitive levels (understanding, application, analysis)
+- Cover different aspects of the content
+
+Content:
 ${truncatedText}
 
-Return a JSON object with a "flashcards" array containing exactly ${count} flashcards.`;
+Return a JSON object with a "flashcards" array containing exactly ${count} flashcards. Each question should genuinely test understanding.`;
 
     console.log('   🤖 Calling OpenAI to generate flashcards...');
     const startTime = Date.now();
