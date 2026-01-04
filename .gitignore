@@ -30,7 +30,15 @@ Thumbs.db
 # Data
 backend/data/
 *.db
-*.json
+# Don't ignore package.json files - they're needed for builds
+!package.json
+!package-lock.json
+!**/package.json
+!**/package-lock.json
+# Don't ignore config JSON files
+!**/vercel.json
+!**/tsconfig.json
+!**/jsconfig.json
 
 # Coverage
 coverage/
